@@ -101,17 +101,30 @@ export async function POST(req: Request) {
 
     // 1. Trusted Domain Whitelist
     const trustedDomains = [
-      "google.com", "accounts.google.com", "microsoft.com", "login.microsoftonline.com", 
-      "apple.com", "icloud.com", "bca.co.id", "klikbca.com", "bri.co.id", "ib.bri.co.id", 
-      "bni.co.id", "bankmandiri.co.id", "dana.id", "ovo.id", "gopay.co.id", "tokopedia.com", 
-      "shopee.co.id", "lazada.co.id", "whatsapp.com", "web.whatsapp.com", "telegram.org", "paypal.com"
+      "google.com", "forms.gle", "goo.gl", 
+      "microsoft.com", "microsoftonline.com", "live.com", "aka.ms",
+      "apple.com", "icloud.com", 
+      "facebook.com", "messenger.com", "instagram.com", 
+      "cloudflare.com", 
+      "bca.co.id", "klikbca.com", 
+      "bankmandiri.co.id", 
+      "bri.co.id", 
+      "bni.co.id", "bnidirect.co.id", 
+      "dana.id", "ovo.id", "gopay.co.id", 
+      "tokopedia.com", "shopee.co.id", "lazada.co.id", "blibli.com",
+      "whatsapp.com", "telegram.org", "paypal.com"
     ];
+    // Secure suffix matching for trusted domains
     const isTrusted = trustedDomains.some(td => lowerDomain === td || lowerDomain.endsWith("." + td));
 
+    // 1b. Shortlink Detection
+    const shortlinks = ["bit.ly", "tinyurl.com", "t.co", "shorturl.at", "rb.gy"];
+    const isShortlink = shortlinks.some(sl => lowerDomain === sl || lowerDomain.endsWith("." + sl));
+
     // 2. Brand impersonation (25 pts)
-    const brands = ["bca", "bri", "bni", "mandiri", "dana", "ovo", "gopay", "linkaja", "tokopedia", "shopee", "lazada", "whatsapp", "telegram", "google", "paypal"];
+    const brands = ["bca", "bri", "bni", "mandiri", "dana", "ovo", "gopay", "linkaja", "tokopedia", "shopee", "lazada", "whatsapp", "telegram", "google", "paypal", "facebook", "apple", "microsoft"];
     // ONLY trigger brand impersonation if it's NOT a trusted official domain
-    const hasBrand = !isTrusted && brands.some(b => lowerDomain.includes(b));
+    const hasBrand = !isTrusted && !isShortlink && brands.some(b => lowerDomain.includes(b));
     if (hasBrand) heuristicScore += 25;
 
     // 3. Suspicious auth keywords (20 pts)
@@ -144,9 +157,12 @@ export async function POST(req: Request) {
     let finalScore = (isMock ? 10 : domainAgeScore) + heuristicScore;
     let explanation = `Domain ${domain} dianalisis. `;
     
-    if (isTrusted) {
+    if (isTrusted && !isShortlink) {
       finalScore = isHttps ? 5 : 20; // Override for known trusted domains
       explanation = `Domain ${domain} dikenali sebagai domain resmi yang terpercaya. Aman untuk digunakan.`;
+    } else if (isShortlink) {
+      finalScore = 50; // Force CURIGA
+      explanation = "Tautan pendek (shortlink) menyembunyikan tujuan akhir. Harap berhati-hati karena sering digunakan untuk menutupi URL berbahaya.";
     } else {
       // Sharp increase if multiple strong indicators exist
       if (hasBrand && (hasAuth || hasBait)) {
