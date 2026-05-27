@@ -101,18 +101,74 @@ export async function POST(req: Request) {
 
     // 1. Trusted Domain Whitelist
     const trustedDomains = [
-      "google.com", "forms.gle", "goo.gl", 
-      "microsoft.com", "microsoftonline.com", "live.com", "aka.ms",
-      "apple.com", "icloud.com", 
-      "facebook.com", "messenger.com", "instagram.com", 
-      "cloudflare.com", 
-      "bca.co.id", "klikbca.com", 
-      "bankmandiri.co.id", 
-      "bri.co.id", 
-      "bni.co.id", "bnidirect.co.id", 
-      "dana.id", "ovo.id", "gopay.co.id", 
-      "tokopedia.com", "shopee.co.id", "lazada.co.id", "blibli.com",
-      "whatsapp.com", "telegram.org", "paypal.com"
+      "google.com",
+"accounts.google.com",
+"share.google",
+"forms.gle",
+"goo.gl",
+"maps.app.goo.gl",
+
+"microsoft.com",
+"login.microsoftonline.com",
+"aka.ms",
+
+"apple.com",
+"icloud.com",
+
+"github.com",
+"githubusercontent.com",
+
+"whatsapp.com",
+"web.whatsapp.com",
+"wa.me",
+
+"telegram.org",
+"t.me",
+
+"discord.com",
+"discord.gg",
+
+"facebook.com",
+"fb.com",
+"instagram.com",
+"messenger.com",
+
+"x.com",
+"twitter.com",
+
+"linkedin.com",
+
+"youtube.com",
+"youtu.be",
+
+"openai.com",
+"chatgpt.com",
+
+"tokopedia.com",
+"shopee.co.id",
+"lazada.co.id",
+"blibli.com",
+
+"bca.co.id",
+"klikbca.com",
+"mybca.co.id",
+
+"bri.co.id",
+"ib.bri.co.id",
+
+"bni.co.id",
+
+"bankmandiri.co.id",
+"livin.co.id",
+
+"cimbniaga.co.id",
+
+"dana.id",
+"ovo.id",
+"gopay.co.id",
+"linkaja.id",
+
+"paypal.com",
     ];
     // Secure suffix matching for trusted domains
     const isTrusted = trustedDomains.some(td => lowerDomain === td || lowerDomain.endsWith("." + td));
