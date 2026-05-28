@@ -113,6 +113,9 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
     const hostname = parsed.hostname.toLowerCase();
 const fullUrl = url.toLowerCase();
 
+// TEST
+details.push("TEST TYPO ACTIVE");
+
 // Typosquatting normalization
 const normalizedHost = hostname
   .replace(/0/g, "o")
