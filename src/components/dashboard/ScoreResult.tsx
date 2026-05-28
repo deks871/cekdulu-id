@@ -5,11 +5,12 @@ import { ShieldAlert, ShieldCheck, AlertTriangle } from "lucide-react";
 interface ScoreResultProps {
   score: number;
   category?: string;
-  analysis: string;
+  analysis?: string;
+  details?: string[];
   isMock?: boolean;
 }
 
-export default function ScoreResult({ score, category, analysis, isMock }: ScoreResultProps) {
+export default function ScoreResult({ score, category, analysis, details, isMock }: ScoreResultProps) {
   const colorClass = getScoreColor(score);
   const label = category || getScoreLabel(score);
 
@@ -35,7 +36,15 @@ export default function ScoreResult({ score, category, analysis, isMock }: Score
         
         <div className="flex-1 bg-black/20 p-4 rounded-lg">
           <h4 className="text-sm font-semibold text-gray-400 mb-2 uppercase tracking-wide">Hasil Analisis</h4>
-          <p className="text-white leading-relaxed">{analysis}</p>
+          {Array.isArray(details) ? (
+  <ul className="text-white leading-relaxed space-y-2">
+    {details.map((detail, index) => (
+      <li key={index}>• {detail}</li>
+    ))}
+  </ul>
+) : (
+  <p className="text-white leading-relaxed">{analysis}</p>
+)}
           
           {isMock && (
             <div className="mt-4 inline-flex items-center px-2 py-1 rounded bg-cyber-blue/20 text-cyber-blue text-xs font-bold border border-cyber-blue/30">
