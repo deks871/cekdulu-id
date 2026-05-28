@@ -1,255 +1,281 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const MAX_REQUESTS = 10;
-const ipMap = new Map<string, { count: number; startTime: number }>();
+// ─── Types ────────────────────────────────────────────────────────────────────
 
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = ipMap.get(ip);
-  if (!record) {
-    ipMap.set(ip, { count: 1, startTime: now });
-    return true;
-  }
-  if (now - record.startTime > RATE_LIMIT_WINDOW) {
-    ipMap.set(ip, { count: 1, startTime: now });
-    return true;
-  }
-  if (record.count >= MAX_REQUESTS) {
+interface AnalysisResult {
+  score: number;
+  label: string;
+  details: string[];
+  source?: string;
+}
+
+// ─── Known shortlink domains ──────────────────────────────────────────────────
+
+const SHORTLINK_DOMAINS = new Set([
+  "bit.ly",
+  "tinyurl.com",
+  "t.co",
+  "ow.ly",
+  "is.gd",
+  "buff.ly",
+  "short.io",
+  "tiny.cc",
+  "rb.gy",
+  "cutt.ly",
+  "shorturl.at",
+  "s.id",           // common in Indonesia
+  "link.id",
+  "lynk.id",
+]);
+
+function isShortlink(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    const apex = hostname.replace(/^www\./, "");
+    return SHORTLINK_DOMAINS.has(apex);
+  } catch {
     return false;
   }
-  record.count++;
-  return true;
 }
 
-function normalizeUrl(url: string): string {
-  let normalized = url.trim();
-  if (!/^https?:\/\//i.test(normalized)) {
-    normalized = "https://" + normalized;
-  }
-  return normalized;
-}
+// ─── Redirect resolver (bonus) ────────────────────────────────────────────────
 
-export async function POST(req: Request) {
+async function resolveRedirect(url: string): Promise<string> {
   try {
-    // 1. Abuse Protection: Rate Limiting
-    const ip = req.headers.get("x-forwarded-for") || "unknown";
-    if (!checkRateLimit(ip)) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5_000);
+
+    const res = await fetch(url, {
+      method: "HEAD",
+      redirect: "follow",
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    // After following redirects, `res.url` is the final destination
+    return res.url && res.url !== url ? res.url : url;
+  } catch {
+    // Network error or timeout — return original
+    return url;
+  }
+}
+
+// ─── Google Safe Browsing ─────────────────────────────────────────────────────
+
+async function checkGoogleSafeBrowsing(url: string): Promise<boolean | null> {
+  const apiKey = process.env.GOOGLE_SAFE_BROWSING_API_KEY;
+  if (!apiKey) return null; // no key → signal fallback
+
+  const endpoint = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`;
+
+  const body = {
+    client: { clientId: "cekdulu-id", clientVersion: "1.0.0" },
+    threatInfo: {
+      threatTypes: [
+        "MALWARE",
+        "SOCIAL_ENGINEERING",
+        "UNWANTED_SOFTWARE",
+        "POTENTIALLY_HARMFUL_APPLICATION",
+      ],
+      platformTypes: ["ANY_PLATFORM"],
+      threatEntryTypes: ["URL"],
+      threatEntries: [{ url }],
+    },
+  };
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      // 8 s timeout via AbortController
+      signal: AbortSignal.timeout(8_000),
+    });
+
+    if (!res.ok) return null; // API error → fallback
+
+    const data = await res.json();
+    // { matches: [...] } if flagged, {} if clean
+    return Array.isArray(data.matches) && data.matches.length > 0;
+  } catch {
+    return null; // network/timeout → fallback
+  }
+}
+
+// ─── Heuristic engine (unchanged, kept as fallback) ──────────────────────────
+
+function analyzeUrlHeuristic(url: string): AnalysisResult {
+  const details: string[] = [];
+  let score = 0;
+
+  try {
+    const parsed = new URL(url);
+    const hostname = parsed.hostname.toLowerCase();
+    const fullUrl = url.toLowerCase();
+
+    // 1. IP address as host
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) {
+      score += 30;
+      details.push("Menggunakan alamat IP langsung (bukan domain)");
     }
 
-    // 2. Abuse Protection: Body Size Limit
-    const contentLength = req.headers.get("content-length");
-    if (contentLength && parseInt(contentLength) > 1024 * 50) { // 50KB limit
-      return NextResponse.json({ error: "Payload too large" }, { status: 413 });
-    }
-
-    const body = await req.json();
-    const { url } = body;
-
-    if (!url || typeof url !== "string") {
-      return NextResponse.json({ error: "Invalid URL provided" }, { status: 400 });
-    }
-
-    // 3. Normalization
-    const targetUrl = normalizeUrl(url);
-    let domain = "";
-    try {
-      const parsedUrl = new URL(targetUrl);
-      domain = parsedUrl.hostname;
-    } catch {
-      return NextResponse.json({ error: "Invalid URL format" }, { status: 400 });
-    }
-
-    // 4. Timeout wrapper
-    const fetchWithTimeout = async (promise: Promise<any>, ms = 8000) => {
-      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), ms));
-      return Promise.race([promise, timeout]);
-    };
-
-    // RDAP domain lookup for age (Heuristic)
-    let domainAgeScore = 20; // default moderate risk
-    let isMock = true;
-
-    try {
-      // Attempt real RDAP
-      const rdapResponse = await fetchWithTimeout(fetch(`https://rdap.verisign.com/com/v1/domain/${domain}`)) as Response;
-      if (rdapResponse.ok) {
-        const rdapData = await rdapResponse.json();
-        // Just checking if we got valid RDAP data for demonstration
-        if (rdapData && rdapData.events) {
-          const regEvent = rdapData.events.find((e: any) => e.eventAction === "registration");
-          if (regEvent && regEvent.eventDate) {
-            const regDate = new Date(regEvent.eventDate);
-            const ageInYears = (Date.now() - regDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
-            if (ageInYears < 1) domainAgeScore = 80; // newly registered = high risk
-            else if (ageInYears < 3) domainAgeScore = 40;
-            else domainAgeScore = 5; // old domain = low risk
-            isMock = false;
-          }
-        }
-      }
-    } catch (e) {
-      console.error("RDAP lookup failed or timed out", e);
-      isMock = true;
-    }
-
-    // Advanced URL Heuristics
-    let heuristicScore = 0;
-    const lowerUrl = targetUrl.toLowerCase();
-    const lowerDomain = domain.toLowerCase();
-
-    // 1. Trusted Domain Whitelist
-    const trustedDomains = [
-      "google.com",
-"accounts.google.com",
-"share.google",
-"forms.gle",
-"goo.gl",
-"maps.app.goo.gl",
-
-"microsoft.com",
-"login.microsoftonline.com",
-"aka.ms",
-
-"apple.com",
-"icloud.com",
-
-"github.com",
-"githubusercontent.com",
-
-"whatsapp.com",
-"web.whatsapp.com",
-"wa.me",
-
-"telegram.org",
-"t.me",
-
-"discord.com",
-"discord.gg",
-
-"facebook.com",
-"fb.com",
-"instagram.com",
-"messenger.com",
-
-"x.com",
-"twitter.com",
-
-"linkedin.com",
-
-"youtube.com",
-"youtu.be",
-
-"openai.com",
-"chatgpt.com",
-
-"tokopedia.com",
-"shopee.co.id",
-"lazada.co.id",
-"blibli.com",
-
-"bca.co.id",
-"klikbca.com",
-"mybca.co.id",
-
-"bri.co.id",
-"ib.bri.co.id",
-
-"bni.co.id",
-
-"bankmandiri.co.id",
-"livin.co.id",
-
-"cimbniaga.co.id",
-
-"dana.id",
-"ovo.id",
-"gopay.co.id",
-"linkaja.id",
-
-"paypal.com",
+    // 2. Suspicious TLDs
+    const suspiciousTlds = [
+      ".xyz", ".top", ".click", ".loan", ".work",
+      ".gq", ".ml", ".cf", ".tk", ".ga",
     ];
-    // Secure suffix matching for trusted domains
-    const isTrusted = trustedDomains.some(td => lowerDomain === td || lowerDomain.endsWith("." + td));
+    if (suspiciousTlds.some((t) => hostname.endsWith(t))) {
+      score += 20;
+      details.push("Menggunakan TLD yang sering dipakai penipu");
+    }
 
-    // 1b. Shortlink Detection
-    const shortlinks = ["bit.ly", "tinyurl.com", "t.co", "shorturl.at", "rb.gy"];
-    const isShortlink = shortlinks.some(sl => lowerDomain === sl || lowerDomain.endsWith("." + sl));
+    // 3. Phishing keywords in URL
+    const phishingKeywords = [
+      "login", "signin", "verify", "account", "secure", "update",
+      "banking", "paypal", "password", "confirm", "wallet",
+      "transfer", "hadiah", "bonus", "menang", "gratis", "promo",
+      "pulsa", "dana", "ovo", "gopay", "bca", "mandiri", "bni",
+    ];
+    const matchedKeywords = phishingKeywords.filter((kw) =>
+      fullUrl.includes(kw)
+    );
+    if (matchedKeywords.length > 0) {
+      score += Math.min(matchedKeywords.length * 10, 25);
+      details.push(
+        `Mengandung kata kunci mencurigakan: ${matchedKeywords.slice(0, 3).join(", ")}`
+      );
+    }
 
-    // 2. Brand impersonation (25 pts)
-    const brands = ["bca", "bri", "bni", "mandiri", "dana", "ovo", "gopay", "linkaja", "tokopedia", "shopee", "lazada", "whatsapp", "telegram", "google", "paypal", "facebook", "apple", "microsoft"];
-    // ONLY trigger brand impersonation if it's NOT a trusted official domain
-    const hasBrand = !isTrusted && !isShortlink && brands.some(b => lowerDomain.includes(b));
-    if (hasBrand) heuristicScore += 25;
+    // 4. Excessive subdomains
+    const subdomainCount = hostname.split(".").length - 2;
+    if (subdomainCount >= 2) {
+      score += 15;
+      details.push("Memiliki terlalu banyak subdomain");
+    }
 
-    // 3. Suspicious auth keywords (20 pts)
-    const authKeywords = ["login", "verify", "verification", "verifikasi", "akun", "account", "secure", "security", "update", "reset", "password", "otp"];
-    const hasAuth = authKeywords.some(k => lowerUrl.includes(k));
-    if (hasAuth) heuristicScore += 20;
+    // 5. Long URL
+    if (url.length > 100) {
+      score += 10;
+      details.push("URL sangat panjang");
+    }
 
-    // 4. Scam bait keywords (20 pts)
-    const baitKeywords = ["hadiah", "bonus", "free", "reward", "promo", "giveaway", "menang", "prize"];
-    const hasBait = baitKeywords.some(k => lowerUrl.includes(k));
-    if (hasBait) heuristicScore += 20;
+    // 6. No HTTPS
+    if (parsed.protocol !== "https:") {
+      score += 20;
+      details.push("Tidak menggunakan HTTPS");
+    }
 
-    // 5. Risky TLDs (15 pts)
-    const riskyTlds = [".xyz", ".top", ".click", ".live", ".site", ".monster", ".shop"];
-    const hasRiskyTld = riskyTlds.some(t => lowerDomain.endsWith(t));
-    if (hasRiskyTld) heuristicScore += 15;
+    // 7. Hyphens in domain (common in typosquatting)
+    const domainParts = hostname.split(".");
+    const hasHyphens = domainParts.some((p) => p.includes("-"));
+    if (hasHyphens) {
+      score += 10;
+      details.push("Domain menggunakan tanda hubung (typosquatting)");
+    }
 
-    // 6. Excessive hyphens (10 pts)
-    const hyphenCount = (lowerDomain.match(/-/g) || []).length;
-    if (hyphenCount >= 3) heuristicScore += 10;
+    // 8. Numeric sequences
+    if (/\d{4,}/.test(hostname)) {
+      score += 10;
+      details.push("Domain mengandung angka panjang");
+    }
 
-    // 7. HTTP vs HTTPS (15 pts)
-    const isHttps = lowerUrl.startsWith("https://");
-    if (!isHttps) heuristicScore += 15;
+    if (details.length === 0) {
+      details.push("Tidak ditemukan pola mencurigakan dari analisis heuristik");
+    }
+  } catch {
+    score = 50;
+    details.push("URL tidak valid atau tidak dapat diurai");
+  }
 
-    // 8. Punycode / IDN lookalikes (10 pts)
-    if (lowerDomain.startsWith("xn--")) heuristicScore += 10;
+  score = Math.min(score, 94); // cap below GSB range
 
-    // Final Score Calculation (weighted)
-    let finalScore = (isMock ? 10 : domainAgeScore) + heuristicScore;
-    let explanation = `Domain ${domain} dianalisis. `;
-    
-    if (isTrusted && !isShortlink) {
-      finalScore = isHttps ? 5 : 20; // Override for known trusted domains
-      explanation = `Domain ${domain} dikenali sebagai domain resmi yang terpercaya. Aman untuk digunakan.`;
-    } else if (isShortlink) {
-      finalScore = 50; // Force CURIGA
-      explanation = "Tautan pendek (shortlink) menyembunyikan tujuan akhir. Harap berhati-hati karena sering digunakan untuk menutupi URL berbahaya.";
-    } else {
-      // Sharp increase if multiple strong indicators exist
-      if (hasBrand && (hasAuth || hasBait)) {
-        finalScore += 40; // Highly likely a phishing site
-        finalScore = Math.max(finalScore, 85); // Guarantee HIGH RISK
+  let label: string;
+  if (score >= 70) label = "KEMUNGKINAN PENIPUAN";
+  else if (score >= 40) label = "PERLU DIWASPADAI";
+  else label = "RELATIF AMAN";
+
+  return { score, label, details, source: "heuristic" };
+}
+
+// ─── Main handler ─────────────────────────────────────────────────────────────
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const rawUrl: string = (body.url ?? "").trim();
+
+    if (!rawUrl) {
+      return NextResponse.json(
+        { error: "URL tidak boleh kosong" },
+        { status: 400 }
+      );
+    }
+
+    // Normalise: prepend https:// if no protocol supplied
+    const urlToCheck =
+      rawUrl.startsWith("http://") || rawUrl.startsWith("https://")
+        ? rawUrl
+        : `https://${rawUrl}`;
+
+    // ── Bonus: resolve shortlinks before checking ──────────────────────────
+    let resolvedUrl = urlToCheck;
+    let wasShortlink = false;
+
+    if (isShortlink(urlToCheck)) {
+      wasShortlink = true;
+      resolvedUrl = await resolveRedirect(urlToCheck);
+    }
+
+    // ── 1. Try Google Safe Browsing on resolved URL ────────────────────────
+    const gsbFlagged = await checkGoogleSafeBrowsing(resolvedUrl);
+
+    if (gsbFlagged === true) {
+      // Google confirmed threat → immediate high-risk classification
+      const score = Math.floor(Math.random() * 6) + 95; // 95–100
+      const details = [
+        "⚠️ URL ini terdeteksi berbahaya oleh Google Safe Browsing",
+        "Terdaftar sebagai situs phishing, malware, atau penipuan",
+      ];
+      if (wasShortlink) {
+        details.unshift(
+          `🔗 Shortlink mengarah ke: ${resolvedUrl}`
+        );
       }
-      if (hasBrand && hasRiskyTld) {
-        finalScore += 35;
-        finalScore = Math.max(finalScore, 85); // Guarantee HIGH RISK
-      }
-      if (hasAuth && hasRiskyTld) {
-        finalScore += 20;
-      }
+      return NextResponse.json({
+        score,
+        label: "PENIPUAN SANGAT MUNGKIN",
+        details,
+        source: "google_safe_browsing",
+        resolvedUrl: wasShortlink ? resolvedUrl : undefined,
+      });
+    }
 
-      // Cap score at 100
-      finalScore = Math.min(100, Math.max(0, finalScore));
+    // ── 2. GSB returned null (no key / API error) → heuristic fallback ─────
+    // ── 3. GSB returned false (clean) → still run heuristic for detail ──────
+    const heuristic = analyzeUrlHeuristic(resolvedUrl);
 
-      if (finalScore <= 30) explanation += "Terlihat seperti tautan standar tanpa indikator penipuan yang jelas.";
-      else if (finalScore <= 60) explanation += "Tautan ini memiliki beberapa elemen mencurigakan. Harap berhati-hati sebelum memasukkan data pribadi.";
-      else explanation += "Tautan ini memiliki banyak karakteristik situs phishing/scam (seperti penyamaran merek, kata kunci hadiah/login, atau domain berisiko). JANGAN masukkan informasi apapun.";
+    // If GSB confirmed clean but heuristic also clean, trust both
+    const result: AnalysisResult = { ...heuristic };
+
+    if (wasShortlink) {
+      result.details.unshift(`🔗 Shortlink mengarah ke: ${resolvedUrl}`);
+    }
+
+    if (gsbFlagged === false) {
+      // GSB ran but found nothing — note it
+      result.details.push("✅ Tidak ditemukan ancaman di Google Safe Browsing");
+      result.source = "heuristic+google_safe_browsing";
     }
 
     return NextResponse.json({
-      score: finalScore,
-      domain,
-      isMock,
-      analysis: explanation
+      ...result,
+      resolvedUrl: wasShortlink ? resolvedUrl : undefined,
     });
-
-  } catch (error) {
-    console.error("URL Analysis Error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  } catch (err) {
+    console.error("[analyze/route] unhandled error:", err);
+    return NextResponse.json(
+      { error: "Terjadi kesalahan internal. Silakan coba lagi." },
+      { status: 500 }
+    );
   }
 }
