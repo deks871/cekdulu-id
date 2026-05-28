@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Link, Loader2 } from "lucide-react";
 import ScoreResult from "./ScoreResult";
@@ -7,7 +5,12 @@ import ScoreResult from "./ScoreResult";
 export default function UrlChecker() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{
+    score: number;
+    label: string;
+    details: string[];
+    isMock?: boolean;
+  } | null>(null);
   const [error, setError] = useState("");
 
   const handleAnalyze = async (e: React.FormEvent) => {
@@ -16,24 +19,19 @@ export default function UrlChecker() {
       setError("Masukkan URL terlebih dahulu");
       return;
     }
-    
     setError("");
     setLoading(true);
     setResult(null);
-
     try {
-      const res = await fetch("/api/analyze/url", {
+      const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url }),
       });
-      
       const data = await res.json();
-      
       if (!res.ok) {
         throw new Error(data.error || "Gagal menganalisis URL");
       }
-      
       setResult(data);
     } catch (err: any) {
       setError(err.message);
@@ -46,9 +44,10 @@ export default function UrlChecker() {
     <div>
       <div className="mb-6">
         <h3 className="text-xl font-bold text-white mb-2">URL Checker</h3>
-        <p className="text-gray-400 text-sm">Cek apakah sebuah tautan (link) aman dari pishing atau penipuan.</p>
+        <p className="text-gray-400 text-sm">
+          Cek apakah sebuah tautan (link) aman dari pishing atau penipuan.
+        </p>
       </div>
-      
       <form onSubmit={handleAnalyze} className="space-y-4">
         <div>
           <div className="relative">
@@ -65,7 +64,6 @@ export default function UrlChecker() {
           </div>
           {error && <p className="mt-2 text-sm text-cyber-red">{error}</p>}
         </div>
-        
         <button
           type="submit"
           disabled={loading}
@@ -80,14 +78,14 @@ export default function UrlChecker() {
           )}
         </button>
       </form>
-
       {result && (
-        <ScoreResult 
-          score={result.score} 
-          analysis={result.analysis} 
-          isMock={result.isMock}
-        />
-      )}
+  <ScoreResult
+    score={result.score}
+    category={result.label}
+    details={result.details}
+    isMock={result.isMock}
+  />
+)}
     </div>
   );
 }
