@@ -71,8 +71,8 @@ export default function OcrAnalyzer() {
       }
 
       setLoadingStep("Menganalisis teks...");
-      // Send to Chat Analyzer API
-      const res = await fetch("/api/analyze/chat", {
+      
+      const res = await fetch("/api/analyze/ocr", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: extractedText.substring(0, 2000) }), // limit to 2000 chars

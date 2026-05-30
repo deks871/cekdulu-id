@@ -1,42 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import vision from "@google-cloud/vision";
 import { analyzeScam } from "@/lib/scamAnalyzer";
-
-const client = new vision.ImageAnnotatorClient();
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get("image") as File;
+    const body = await req.json();
+    const { text } = body;
 
-    if (!file) {
+    if (!text || typeof text !== "string") {
       return NextResponse.json(
-        { error: "Gambar tidak ditemukan" },
+        { error: "Teks tidak valid atau tidak ditemukan" },
         { status: 400 }
       );
     }
 
-    const bytes = Buffer.from(await file.arrayBuffer());
-
-    const [result] = await client.textDetection({
-      image: { content: bytes },
-    });
-
-    const text = result.fullTextAnnotation?.text || "";
-
     const analysis = analyzeScam(text);
+
+    console.log("OCR TEXT:", text);
+    console.log("OCR ANALYSIS:", analysis);
 
     return NextResponse.json({
       success: true,
       text,
       score: analysis.score,
-      label: analysis.label,
+      category: analysis.label,
+      analysis: analysis.reasons.length > 0 
+        ? "Ditemukan pola yang mencurigakan." 
+        : "Tidak ditemukan pola penipuan yang jelas.",
+      details: analysis.reasons,
     });
   } catch (err) {
     console.error(err);
 
     return NextResponse.json(
-      { error: "OCR gagal" },
+      { error: "Analisis gagal" },
       { status: 500 }
     );
   }

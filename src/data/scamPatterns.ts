@@ -369,17 +369,17 @@ export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
     maxScore: 40,
     patterns: [
       {
-        pattern: /\.apk/i,
+        pattern: /\.apk/gi,
         label: "File APK terdeteksi",
         score: 30,
       },
       {
-        pattern: /install aplikasi|instal aplikasi|download aplikasi|unduh aplikasi/i,
+        pattern: /install aplikasi|instal aplikasi|download aplikasi|unduh aplikasi/gi,
         label: "Ajakan menginstal aplikasi",
         score: 20,
       },
       {
-        pattern: /buka aplikasi/i,
+        pattern: /buka aplikasi/gi,
         label: "Mengarahkan korban membuka aplikasi",
         score: 15,
       },
