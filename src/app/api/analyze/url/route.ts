@@ -191,7 +191,7 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
 
     const subdomainCount = hostname.split(".").length - 2;
 
-    if (!isIpAddress && subdomainCount >= 2) {
+    if (subdomainCount >= 4) {
       score += 10;
       details.push("Memiliki terlalu banyak subdomain");
     }
