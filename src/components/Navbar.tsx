@@ -18,29 +18,31 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 glass border-b border-glass-border">
+    <nav className="fixed top-0 left-0 w-full z-50 bg-black/40 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-2">
-              <ShieldCheck className="h-8 w-8 text-cyber-green" />
-              <span className="font-outfit font-bold text-xl tracking-wide text-white">
+            <Link href="/" className="flex items-center gap-3">
+              <div className="bg-cyber-green/10 p-2 rounded-xl">
+                <ShieldCheck className="h-7 w-7 text-cyber-green" />
+              </div>
+              <span className="font-outfit font-bold text-2xl tracking-wide text-white">
                 CekDulu<span className="text-cyber-green">.id</span>
               </span>
             </Link>
           </div>
           
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
+            <div className="ml-10 flex items-center space-x-2 bg-white/5 p-1.5 rounded-2xl border border-white/5">
               {navLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
                   className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                    "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300",
                     pathname === link.href
-                      ? "text-cyber-green bg-white/5"
-                      : "text-gray-300 hover:text-white hover:bg-white/10"
+                      ? "text-cyber-green bg-cyber-green/10 shadow-[0_0_15px_rgba(0,255,102,0.1)]"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
                   )}
                 >
                   {link.name}
@@ -52,7 +54,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-300 hover:text-white focus:outline-none"
+              className="text-gray-300 hover:text-white focus:outline-none p-2 bg-white/5 rounded-xl border border-white/10"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
