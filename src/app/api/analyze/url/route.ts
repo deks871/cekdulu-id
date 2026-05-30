@@ -114,6 +114,35 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
     const hostname = parsed.hostname.toLowerCase();
     const fullUrl = url.toLowerCase();
 
+    const trustedDomains = [
+      "google.com",
+      "github.com",
+      "microsoft.com",
+      "apple.com",
+      "tokopedia.com",
+      "shopee.co.id",
+      "dana.id",
+      "ovo.id",
+      "bca.co.id",
+      "bni.co.id",
+      "bankmandiri.co.id",
+    ];
+
+    if (
+      trustedDomains.some(
+        domain =>
+          hostname === domain ||
+          hostname.endsWith("." + domain)
+      )
+    ) {
+      return {
+        score: 0,
+        label: "RELATIF AMAN",
+        details: ["Domain termasuk whitelist terpercaya"],
+        source: "whitelist",
+      };
+    }
+
     // Typosquatting normalization
     const normalizedHost = hostname
       .replace(/0/g, "o")
