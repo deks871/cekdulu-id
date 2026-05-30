@@ -4,20 +4,21 @@ export type ScamCategory =
   | "action"
   | "giveaway"
   | "otp"
-  | "financial";
- 
+  | "financial"
+  | "malware";
+
 export interface ScamPattern {
   pattern: RegExp;
   label: string; // deskripsi singkat untuk ditampilkan ke user
   score: number; // kontribusi skor dari pattern ini (0-100)
 }
- 
+
 export interface CategoryConfig {
   patterns: ScamPattern[];
   baseScore: number; // skor dasar jika kategori ini terdeteksi
   maxScore: number;  // batas maksimal skor dari kategori ini
 }
- 
+
 // ---------------------------------------------------------------------------
 // COMBO RULES
 // Jika kombinasi kategori berikut terdeteksi, berikan bonus skor
@@ -28,7 +29,7 @@ export interface ComboRule {
   bonusScore: number;
   reason: string;
 }
- 
+
 export const COMBO_RULES: ComboRule[] = [
   {
     id: "impersonation_urgency_action",
@@ -62,17 +63,35 @@ export const COMBO_RULES: ComboRule[] = [
     reason: "Penyamaran untuk mendapatkan akses finansial",
   },
   {
+    id: "malware_impersonation",
+    categories: ["malware", "impersonation"],
+    bonusScore: 25,
+    reason: "Mengaku instansi resmi sambil mengirim aplikasi mencurigakan",
+  },
+  {
+    id: "malware_action",
+    categories: ["malware", "action"],
+    bonusScore: 15,
+    reason: "Mengarahkan korban menginstal atau membuka aplikasi",
+  },
+  {
+    id: "malware_impersonation_action",
+    categories: ["malware", "impersonation", "action"],
+    bonusScore: 35,
+    reason: "Pola APK phishing berkedok instansi resmi",
+  },
+  {
     id: "full_combo",
     categories: ["impersonation", "urgency", "action", "financial"],
     bonusScore: 40,
     reason: "PERINGATAN KERAS: Semua pola utama penipuan terdeteksi sekaligus",
   },
 ];
- 
+
 // ---------------------------------------------------------------------------
 // CATEGORY PATTERNS
 // ---------------------------------------------------------------------------
- 
+
 export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
   // -------------------------------------------------------------------------
   // IMPERSONATION — Penyamaran sebagai institusi/tokoh terpercaya
@@ -124,7 +143,7 @@ export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
       },
     ],
   },
- 
+
   // -------------------------------------------------------------------------
   // URGENCY — Tekanan waktu untuk memaksa tindakan cepat
   // -------------------------------------------------------------------------
@@ -175,7 +194,7 @@ export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
       },
     ],
   },
- 
+
   // -------------------------------------------------------------------------
   // ACTION — Permintaan tindakan yang mencurigakan
   // -------------------------------------------------------------------------
@@ -232,7 +251,7 @@ export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
       },
     ],
   },
- 
+
   // -------------------------------------------------------------------------
   // GIVEAWAY — Tawaran hadiah, undian, atau keuntungan palsu
   // -------------------------------------------------------------------------
@@ -289,7 +308,7 @@ export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
       },
     ],
   },
- 
+
   // -------------------------------------------------------------------------
   // OTP — Permintaan kode OTP atau data sensitif akun
   // -------------------------------------------------------------------------
@@ -341,7 +360,32 @@ export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
       },
     ],
   },
- 
+
+  // -------------------------------------------------------------------------
+  // MALWAREA — Permintaan Download Aplikasi Atau Mengunjungi situs web tertentu
+  // -------------------------------------------------------------------------
+  malware: {
+    baseScore: 30,
+    maxScore: 40,
+    patterns: [
+      {
+        pattern: /\.apk/i,
+        label: "File APK terdeteksi",
+        score: 30,
+      },
+      {
+        pattern: /install aplikasi|instal aplikasi|download aplikasi|unduh aplikasi/i,
+        label: "Ajakan menginstal aplikasi",
+        score: 20,
+      },
+      {
+        pattern: /buka aplikasi/i,
+        label: "Mengarahkan korban membuka aplikasi",
+        score: 15,
+      },
+    ],
+  },
+
   // -------------------------------------------------------------------------
   // FINANCIAL — Permintaan terkait uang atau biaya admin palsu
   // -------------------------------------------------------------------------
@@ -398,5 +442,4 @@ export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
       },
     ],
   },
-};
- 
+}
