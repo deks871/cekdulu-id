@@ -1,0 +1,18 @@
+export const SCAM_KEYWORDS = [
+  "transfer dulu",
+  "akun dibatasi",
+  "verifikasi rekening",
+  "hadiah",
+  "bonus saldo",
+  "paket tertahan",
+  "admin resmi",
+  "customer service",
+  "kode otp",
+  "verifikasi akun",
+  "rekening diblokir",
+  "klik link berikut",
+  "biaya admin",
+  "biaya pencairan",
+  "profit harian",
+  "jamin untung",
+];

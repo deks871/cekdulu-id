@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import vision from "@google-cloud/vision";
+import { analyzeScamText } from "@/lib/scamAnalyzer";
 
 const client = new vision.ImageAnnotatorClient();
 
@@ -23,9 +24,14 @@ export async function POST(req: NextRequest) {
 
     const text = result.fullTextAnnotation?.text || "";
 
+    const analysis = analyzeScamText(text);
+
     return NextResponse.json({
       success: true,
       text,
+      score: analysis.score,
+      label: analysis.label,
+      matchedKeywords: analysis.matchedKeywords,
     });
   } catch (err) {
     console.error(err);
