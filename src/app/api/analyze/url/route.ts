@@ -164,7 +164,7 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
       ".gq", ".ml", ".cf", ".tk", ".ga",
     ];
     if (suspiciousTlds.some((t) => hostname.endsWith(t))) {
-      score += 20;
+      score += 15;
       details.push("Menggunakan TLD yang sering dipakai penipu");
     }
 
@@ -179,7 +179,7 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
       fullUrl.includes(kw)
     );
     if (matchedKeywords.length > 0) {
-      score += Math.min(matchedKeywords.length * 10, 25);
+      score += Math.min(matchedKeywords.length * 5, 15);
       details.push(
         `Mengandung kata kunci mencurigakan: ${matchedKeywords.slice(0, 3).join(", ")}`
       );
@@ -188,19 +188,19 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
     // 4. Excessive subdomains
     const subdomainCount = hostname.split(".").length - 2;
     if (subdomainCount >= 2) {
-      score += 15;
+      score += 10;
       details.push("Memiliki terlalu banyak subdomain");
     }
 
     // 5. Long URL
     if (url.length > 100) {
-      score += 10;
+      score += 5;
       details.push("URL sangat panjang");
     }
 
     // 6. No HTTPS
     if (parsed.protocol !== "https:") {
-      score += 20;
+      score += 15;
       details.push("Tidak menggunakan HTTPS");
     }
 
@@ -214,7 +214,7 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
 
     // 8. Numeric sequences
     if (/\d{4,}/.test(hostname)) {
-      score += 10;
+      score += 5;
       details.push("Domain mengandung angka panjang");
     }
 
@@ -229,8 +229,9 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
   score = Math.min(score, 94); // cap below GSB range
 
   let label: string;
-  if (score >= 70) label = "KEMUNGKINAN PENIPUAN";
-  else if (score >= 40) label = "PERLU DIWASPADAI";
+  if (score >= 75) label = "KEMUNGKINAN PENIPUAN";
+  else if (score >= 50) label = "RISIKO TINGGI";
+  else if (score >= 25) label = "PERLU DIWASPADAI";
   else label = "RELATIF AMAN";
 
   return { score, label, details, source: "heuristic" };
