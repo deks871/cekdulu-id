@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkDomainAge } from "@/lib/domainAge";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -111,45 +112,45 @@ function analyzeUrlHeuristic(url: string): AnalysisResult {
   try {
     const parsed = new URL(url);
     const hostname = parsed.hostname.toLowerCase();
-const fullUrl = url.toLowerCase();
+    const fullUrl = url.toLowerCase();
 
-// Typosquatting normalization
-const normalizedHost = hostname
-  .replace(/0/g, "o")
-  .replace(/1/g, "l")
-  .replace(/3/g, "e")
-  .replace(/5/g, "s")
-  .replace(/7/g, "t")
-  .replace(/@/g, "a");
+    // Typosquatting normalization
+    const normalizedHost = hostname
+      .replace(/0/g, "o")
+      .replace(/1/g, "l")
+      .replace(/3/g, "e")
+      .replace(/5/g, "s")
+      .replace(/7/g, "t")
+      .replace(/@/g, "a");
 
-// Popular brands
-const trustedBrands = [
-  "google",
-  "facebook",
-  "paypal",
-  "microsoft",
-  "apple",
-  "tokopedia",
-  "shopee",
-  "dana",
-  "ovo",
-  "gopay",
-  "bca",
-  "mandiri",
-  "bni"
-];
+    // Popular brands
+    const trustedBrands = [
+      "google",
+      "facebook",
+      "paypal",
+      "microsoft",
+      "apple",
+      "tokopedia",
+      "shopee",
+      "dana",
+      "ovo",
+      "gopay",
+      "bca",
+      "mandiri",
+      "bni"
+    ];
 
-// Detect typosquatting
-for (const brand of trustedBrands) {
-  if (
-    normalizedHost.includes(brand) &&
-    !hostname.includes(brand)
-  ) {
-    score += 35;
-    details.push(`Terdeteksi kemungkinan typosquatting brand: ${brand}`);
-    break;
-  }
-}
+    // Detect typosquatting
+    for (const brand of trustedBrands) {
+      if (
+        normalizedHost.includes(brand) &&
+        !hostname.includes(brand)
+      ) {
+        score += 35;
+        details.push(`Terdeteksi kemungkinan typosquatting brand: ${brand}`);
+        break;
+      }
+    }
 
     // 1. IP address as host
     if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) {
@@ -291,6 +292,22 @@ export async function POST(req: NextRequest) {
     // ── 2. GSB returned null (no key / API error) → heuristic fallback ─────
     // ── 3. GSB returned false (clean) → still run heuristic for detail ──────
     const heuristic = analyzeUrlHeuristic(resolvedUrl);
+    // Domain Age Detection
+    try {
+      const domainAge = await checkDomainAge(resolvedUrl);
+
+      if (domainAge.riskScore > 0) {
+        heuristic.score += domainAge.riskScore;
+        heuristic.details.push(domainAge.reason);
+      } else {
+        heuristic.details.push(`✅ ${domainAge.reason}`);
+      }
+
+      heuristic.score = Math.min(100, heuristic.score);
+    } catch (error) {
+      console.error("Domain age check failed:", error);
+    }
+
 
     // If GSB confirmed clean but heuristic also clean, trust both
     const result: AnalysisResult = { ...heuristic };
