@@ -108,22 +108,22 @@ export default function Home() {
 
   const itemVariants = {
     hidden: { y: 15, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" } },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.6, } },
   };
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative px-4 py-8 md:py-12 flex items-center justify-center min-h-[calc(100vh-5rem)] overflow-hidden">
+      <section className="relative px-4 pt-16 pb-24 md:pt-20 md:pb-32 lg:pt-20 lg:pb-40 flex items-center justify-center min-h-[90vh] lg:min-h-[95vh] overflow-hidden">
         {/* Ambient Glow Effects - Refined for premium look */}
-        <div className="absolute top-1/2 left-[15%] -translate-y-1/2 w-[250px] md:w-[350px] h-[250px] md:h-[350px] bg-cyber-green/15 rounded-full blur-[100px] -z-10 pointer-events-none opacity-80"></div>
-        <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-[300px] md:w-[450px] h-[300px] md:h-[450px] bg-cyber-green/15 rounded-full blur-[120px] -z-10 pointer-events-none opacity-80"></div>
+        <div className="absolute top-[45%] left-[15%] -translate-y-1/2 w-[250px] md:w-[350px] h-[250px] md:h-[350px] bg-cyber-green/15 rounded-full blur-[100px] -z-10 pointer-events-none opacity-80"></div>
+        <div className="absolute top-[45%] right-[15%] -translate-y-1/2 w-[300px] md:w-[450px] h-[300px] md:h-[450px] bg-cyber-green/15 rounded-full blur-[120px] -z-10 pointer-events-none opacity-80"></div>
         
         <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-8 items-center z-10">
           
           {/* Left Content */}
           <motion.div 
-            className="max-w-2xl text-left z-10 pt-10 lg:pt-0"
+            className="max-w-2xl text-left z-10 pt-0"
             initial="hidden"
             animate="visible"
             variants={containerVariants}
