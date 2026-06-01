@@ -67,14 +67,16 @@ export default function UrlChecker() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full sm:w-auto px-6 py-3 bg-cyber-blue hover:bg-[#00cce5] text-black font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:shadow-[0_0_30px_rgba(0,229,255,0.5)] flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-800 border border-slate-700 hover:border-cyber-blue text-white font-semibold rounded-xl transition-all shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
         >
           {loading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin" /> Menganalisis...
+              <Loader2 className="w-5 h-5 animate-spin text-cyber-blue" /> <span className="text-slate-300">Menganalisis URL...</span>
             </>
           ) : (
-            "Periksa URL"
+            <>
+              <span className="group-hover:text-cyber-blue transition-colors">Periksa URL</span>
+            </>
           )}
         </button>
       </form>

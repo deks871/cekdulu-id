@@ -124,12 +124,12 @@ export default function OcrAnalyzer() {
               <button
                 onClick={handleAnalyze}
                 disabled={loading}
-                className="px-6 py-2 bg-cyber-green hover:bg-[#00e65c] text-black font-bold rounded-lg transition-all shadow-[0_0_15px_rgba(0,255,102,0.3)] disabled:opacity-50 flex items-center gap-2"
+                className="px-6 py-2 bg-slate-800 border border-slate-700 hover:border-cyber-green text-white font-semibold rounded-lg transition-all shadow-lg disabled:opacity-50 flex items-center gap-2 group"
               >
                 {loading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> {loadingStep}</>
+                  <><Loader2 className="w-4 h-4 animate-spin text-cyber-green" /> <span className="text-slate-300">{loadingStep}</span></>
                 ) : (
-                  <><FileImage className="w-4 h-4" /> Analisis Gambar</>
+                  <><FileImage className="w-4 h-4 group-hover:text-cyber-green transition-colors" /> <span className="group-hover:text-cyber-green transition-colors">Analisis Gambar</span></>
                 )}
               </button>
             </div>

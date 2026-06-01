@@ -13,7 +13,11 @@ import {
   UserX,
   Zap,
   MapPin,
-  ChevronRight
+  ChevronRight,
+  ShieldAlert,
+  ReceiptText,
+  Link2,
+  BrainCircuit
 } from "lucide-react";
 
 const PhoneMockup = ({ 
@@ -111,9 +115,9 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative px-4 pt-32 pb-32 flex items-center justify-center min-h-[95vh] overflow-hidden">
-        {/* Ambient Glow Effects */}
-        <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[600px] md:w-[800px] h-[600px] md:h-[800px] bg-cyber-green/10 rounded-full blur-[100px] md:blur-[130px] -z-10 mix-blend-screen pointer-events-none"></div>
-        <div className="absolute bottom-0 left-[10%] w-[500px] h-[500px] bg-cyber-blue/5 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
+        {/* Ambient Glow Effects - Toned down for professional look */}
+        <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-cyber-green/5 rounded-full blur-[120px] md:blur-[150px] -z-10 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-[10%] w-[300px] h-[300px] bg-cyber-blue/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
         
         <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-8 items-center z-10">
           
@@ -159,12 +163,12 @@ export default function Home() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
-            className="relative h-[600px] w-full flex items-center justify-center lg:justify-end mt-8 lg:mt-0 perspective-[1200px]"
+            className="relative h-[500px] md:h-[600px] w-full flex items-center justify-center lg:justify-end mt-4 lg:mt-0 perspective-[1200px]"
           >
             {/* Phone 2 (Left / Behind) */}
             <PhoneMockup 
-              wrapperClass={`lg:right-[42%] top-[5%] lg:top-[8%] -rotate-[12deg] lg:-rotate-[14deg] scale-[0.9] lg:scale-95 ${hoveredPhone === 2 ? 'rotate-[0deg] scale-100 lg:scale-[1.05] -translate-y-8 translate-x-8' : 'z-0 opacity-80 lg:opacity-90 blur-[0.5px]'}`}
-              phoneClass={`shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] ${hoveredPhone === 2 ? 'shadow-[0_40px_80px_-15px_rgba(255,51,102,0.3)]' : ''}`}
+              wrapperClass={`lg:right-[42%] top-[5%] lg:top-[8%] -rotate-[12deg] lg:-rotate-[14deg] scale-[0.65] sm:scale-75 md:scale-[0.85] lg:scale-90 ${hoveredPhone === 2 ? 'rotate-[0deg] scale-[0.7] sm:scale-90 lg:scale-100 -translate-y-4 md:-translate-y-8 translate-x-4 md:translate-x-8' : 'z-0 opacity-70 lg:opacity-80'}`}
+              phoneClass={`shadow-2xl ${hoveredPhone === 2 ? 'shadow-[0_20px_40px_-15px_rgba(255,51,102,0.15)]' : ''}`}
               title="Chat Analyzer"
               icon={MessageSquareWarning}
               data='"Halo kak, hadiah sudah cair. Silakan transfer pajak pencairan sebesar Rp 500.000 ke rekening bendahara kami..."'
@@ -181,8 +185,8 @@ export default function Home() {
             
             {/* Phone 1 (Right / Front) */}
             <PhoneMockup 
-              wrapperClass={`lg:right-[0%] top-[15%] lg:top-[12%] rotate-[6deg] lg:rotate-[8deg] scale-[0.95] lg:scale-100 ${hoveredPhone === 1 ? 'rotate-[0deg] scale-100 lg:scale-[1.05] -translate-y-4 -translate-x-4' : 'z-10'}`}
-              phoneClass={`shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] ${hoveredPhone === 1 ? 'shadow-[0_40px_80px_-15px_rgba(0,255,102,0.3)]' : 'shadow-[0_20px_40px_-10px_rgba(0,255,102,0.15)]'}`}
+              wrapperClass={`lg:right-[0%] top-[15%] lg:top-[12%] rotate-[6deg] lg:rotate-[8deg] scale-[0.7] sm:scale-[0.8] md:scale-[0.9] lg:scale-95 ${hoveredPhone === 1 ? 'rotate-[0deg] scale-[0.75] sm:scale-[0.9] lg:scale-100 -translate-y-2 md:-translate-y-4 -translate-x-2 md:-translate-x-4' : 'z-10'}`}
+              phoneClass={`shadow-2xl ${hoveredPhone === 1 ? 'shadow-[0_20px_40px_-15px_rgba(16,185,129,0.15)]' : 'shadow-xl'}`}
               title="URL Checker"
               icon={LinkIcon}
               data="https://faceb00k-login.xyz/secure/verify"
@@ -201,47 +205,52 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* What We Detect */}
       <section className="py-24 bg-black/40 border-y border-white/5 relative backdrop-blur-sm z-20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16 relative">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-outfit text-white mb-6">Fitur Utama</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">Alat komprehensif untuk melindungi Anda dari berbagai modus penipuan online.</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold font-outfit text-white mb-6">Apa yang Kami Deteksi</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed">Sistem AI kami dilatih untuk mengidentifikasi berbagai vektor serangan siber yang menargetkan pengguna di Indonesia.</p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                icon: <LinkIcon className="w-8 h-8 text-cyber-green" />,
-                title: "URL Checker",
-                desc: "Periksa tautan mencurigakan dan domain palsu secara instan."
+                icon: <ShieldAlert className="w-7 h-7 text-cyber-green" />,
+                title: "Phishing URLs",
+                desc: "Deteksi tautan palsu, domain typosquatting, dan situs yang dirancang untuk mencuri data pribadi atau kredensial perbankan Anda."
               },
               {
-                icon: <MessageSquareWarning className="w-8 h-8 text-cyber-green" />,
-                title: "Chat Analyzer",
-                desc: "Analisis teks pesan yang diduga mengandung unsur manipulatif."
+                icon: <MessageSquareWarning className="w-7 h-7 text-cyber-green" />,
+                title: "Scam Chats",
+                desc: "Analisis heuristik pada pola teks pesan manipulatif berkedok undian berhadiah, lowongan kerja palsu, atau peringatan akun."
               },
               {
-                icon: <ScanText className="w-8 h-8 text-cyber-green" />,
-                title: "Screenshot OCR",
-                desc: "Deteksi indikasi scam dari tangkapan layar dan gambar."
+                icon: <ReceiptText className="w-7 h-7 text-cyber-green" />,
+                title: "Bukti Transfer Palsu",
+                desc: "Verifikasi integritas gambar untuk mendeteksi struk pembayaran hasil editan yang sering digunakan dalam penipuan jual-beli online."
+              },
+              {
+                icon: <UserX className="w-7 h-7 text-cyber-green" />,
+                title: "Social Engineering",
+                desc: "Identifikasi taktik manipulasi psikologis, rekayasa sosial, dan urgensi palsu yang memaksa korban untuk segera bertindak."
               }
             ].map((feature, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ delay: i * 0.15, duration: 0.6 }}
-                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-8 rounded-3xl hover:bg-white/[0.04] hover:border-cyber-green/50 hover:shadow-[0_0_30px_rgba(0,255,102,0.1)] transition-all duration-500 group relative overflow-hidden"
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-6 rounded-2xl hover:bg-white/[0.04] hover:border-cyber-green/30 transition-all duration-300 flex flex-col group relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-cyber-green/10 rounded-full blur-[50px] -mr-10 -mt-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                
-                <div className="w-16 h-16 rounded-2xl bg-cyber-green/10 border border-cyber-green/20 flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-cyber-green/20 transition-all duration-300 relative z-10">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-cyber-green/10 rounded-full blur-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                <div className="w-14 h-14 rounded-xl bg-cyber-green/5 border border-cyber-green/20 flex items-center justify-center mb-6 group-hover:bg-cyber-green/10 transition-colors relative z-10">
                   {feature.icon}
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-4 relative z-10">{feature.title}</h3>
-                <p className="text-gray-400 leading-relaxed text-lg relative z-10">{feature.desc}</p>
+                <h3 className="text-lg font-bold text-white mb-3 relative z-10">{feature.title}</h3>
+                <p className="text-gray-400 leading-relaxed text-sm flex-1 relative z-10">{feature.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -249,23 +258,23 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section id="cara-kerja" className="py-24 relative overflow-hidden">
+      <section id="cara-kerja" className="py-24 relative overflow-hidden bg-black/20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-20">
-            <h2 className="text-3xl md:text-4xl font-bold font-outfit text-white mb-4">Cara Kerja</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-lg">Sistem kami bekerja dalam hitungan detik untuk menganalisis risiko.</p>
+            <h2 className="text-3xl md:text-4xl font-bold font-outfit text-white mb-4">Proses Analisis</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">Proses pemeriksaan otomatis dari awal hingga akhir.</p>
           </div>
 
           <div className="relative">
             {/* Desktop Connector Line */}
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-cyber-green/20 to-transparent -translate-y-1/2 z-0"></div>
+            <div className="hidden md:block absolute top-12 left-0 w-full h-[1px] bg-white/10 z-0"></div>
             
             <div className="grid md:grid-cols-4 gap-8 relative z-10">
               {[
-                { step: "01", title: "Input Data", desc: "Masukkan URL, teks chat, atau unggah screenshot." },
-                { step: "02", title: "Analisis Pola", desc: "Sistem mendeteksi pola yang sering digunakan scammer." },
-                { step: "03", title: "Hitung Risiko", desc: "AI mengkalkulasi tingkat bahaya dari data yang diberikan." },
-                { step: "04", title: "Hasil Akhir", desc: "Dapatkan laporan tingkat risiko dan rekomendasi." }
+                { step: "01", title: "Input Data", desc: "Anda mengirimkan tautan (URL), teks chat, atau mengunggah screenshot gambar." },
+                { step: "02", title: "Ekstraksi Informasi", desc: "Sistem membaca teks di dalam gambar atau memecah komponen dari tautan yang diberikan." },
+                { step: "03", title: "Analisis Risiko", desc: "Mencari kata kunci penipuan, membandingkan dengan database kami, dan melihat pola mencurigakan." },
+                { step: "04", title: "Hasil & Rekomendasi", desc: "Menghitung tingkat bahaya dan memberikan saran yang mudah dipahami tentang tindakan selanjutnya." }
               ].map((item, i) => (
                 <motion.div 
                   key={i}
@@ -273,13 +282,13 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.15 }}
-                  className="relative flex flex-col items-center text-center group"
+                  className="relative flex flex-col items-center md:items-start text-center md:text-left group"
                 >
-                  <div className="w-16 h-16 rounded-full bg-cyber-dark border-2 border-white/10 flex items-center justify-center mb-6 group-hover:border-cyber-green/50 transition-colors z-10 relative">
-                    <span className="text-xl font-bold text-cyber-green font-outfit">{item.step}</span>
+                  <div className="w-24 h-24 rounded-2xl bg-cyber-dark border border-white/10 flex items-center justify-center mb-6 group-hover:border-cyber-green/50 group-hover:bg-cyber-green/5 transition-colors z-10 relative">
+                    <span className="text-3xl font-bold text-cyber-green font-outfit">{item.step}</span>
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                  <p className="text-gray-400 text-sm">{item.desc}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
                   
                   {/* Mobile Connector Arrow */}
                   {i < 3 && (
@@ -290,6 +299,53 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Analysis Methods */}
+      <section className="py-24 border-y border-white/5 bg-black/40 relative backdrop-blur-sm z-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16 relative">
+            <h2 className="text-3xl md:text-4xl font-bold font-outfit text-white mb-4">Metode Analisis</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg">Teknologi pintar di balik deteksi CekDulu.id</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: <ScanText className="w-8 h-8 text-cyber-green" />,
+                title: "Deteksi Teks Gambar",
+                desc: "Sistem dapat membaca tulisan dari foto atau screenshot yang Anda unggah. Kami otomatis mencari kata-kata manipulatif atau melihat apakah format struk pembayaran terlihat wajar."
+              },
+              {
+                icon: <Link2 className="w-8 h-8 text-cyber-green" />,
+                title: "Pemeriksaan Tautan",
+                desc: "Kami memeriksa nama website untuk melihat apakah tautan tersebut meniru situs asli (seperti klikbca palsu) atau sudah dilaporkan sebagai situs berbahaya."
+              },
+              {
+                icon: <BrainCircuit className="w-8 h-8 text-cyber-green" />,
+                title: "Analisis Pola Penipuan",
+                desc: "Sistem mengevaluasi gaya bahasa dan ciri khas penipuan, seperti nada mendesak, tawaran hadiah tidak masuk akal, atau permintaan transfer tiba-tiba."
+              }
+            ].map((method, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 }}
+                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-8 rounded-2xl hover:bg-white/[0.04] hover:border-cyber-green/30 transition-all duration-300 relative group overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-24 h-24 bg-cyber-green/10 rounded-full blur-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+
+                <div className="mb-6 bg-cyber-green/5 border border-cyber-green/20 p-4 rounded-xl inline-block group-hover:bg-cyber-green/10 transition-colors relative z-10">
+                  {method.icon}
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4 relative z-10">{method.title}</h3>
+                <p className="text-gray-400 leading-relaxed text-sm relative z-10">{method.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
