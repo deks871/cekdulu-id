@@ -17,12 +17,21 @@ export default function Navbar() {
     { name: "Tentang", href: "/tentang" },
   ];
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === "/" && pathname === "/") {
+      e.preventDefault();
+      if (window.scrollY > 0) {
+        document.getElementById("home")?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-black/40 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/" onClick={(e) => handleNavClick(e, "/")} className="flex items-center gap-3">
               <div className="bg-cyber-green/10 p-2 rounded-xl">
                 <ShieldCheck className="h-7 w-7 text-cyber-green" />
               </div>
@@ -38,6 +47,7 @@ export default function Navbar() {
                 <Link
                   key={link.name}
                   href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className={cn(
                     "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-300",
                     pathname === link.href
@@ -70,7 +80,10 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                onClick={() => setIsOpen(false)}
+                onClick={(e) => {
+                  setIsOpen(false);
+                  handleNavClick(e, link.href);
+                }}
                 className={cn(
                   "block px-3 py-2 rounded-md text-base font-medium",
                   pathname === link.href
