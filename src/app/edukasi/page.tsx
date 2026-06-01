@@ -18,7 +18,7 @@ export default function Edukasi() {
       tips: "Jika Anda menang undian resmi, penyelenggara akan menanggung biaya pajak dari hadiah tersebut, atau memotong langsung, bukan meminta transfer di awal."
     },
     {
-      icon: <LinkIcon className="w-10 h-10 text-cyber-blue" />,
+      icon: <LinkIcon className="w-10 h-10 text-cyber-green" />,
       title: "Phishing (Link Berbahaya)",
       desc: "Link undangan pernikahan digital (.APK), resi paket, atau peringatan blokir akun yang dikirim via SMS/WA. Saat diklik atau di-install, aplikasi tersebut akan mencuri SMS OTP Anda.",
       tips: "Jangan pernah meng-install file berekstensi .APK dari sumber yang tidak dikenal (selain Play Store). Selalu periksa ekstensi file dan nama domain link dengan CekDulu."
@@ -58,10 +58,10 @@ export default function Edukasi() {
               <div>
                 <h3 className="text-2xl font-bold text-white mb-3">{scam.title}</h3>
                 <p className="text-gray-300 leading-relaxed mb-4">{scam.desc}</p>
-                <div className="bg-cyber-blue/10 border border-cyber-blue/20 rounded-lg p-4 flex gap-3">
-                  <AlertCircle className="w-6 h-6 text-cyber-blue shrink-0 mt-0.5" />
+                <div className="bg-cyber-green/10 border border-cyber-green/20 rounded-lg p-4 flex gap-3">
+                  <AlertCircle className="w-6 h-6 text-cyber-green shrink-0 mt-0.5" />
                   <div>
-                    <span className="block text-sm font-bold text-cyber-blue mb-1">TIPS PENCEGAHAN:</span>
+                    <span className="block text-sm font-bold text-cyber-green mb-1">TIPS PENCEGAHAN:</span>
                     <p className="text-sm text-gray-300">{scam.tips}</p>
                   </div>
                 </div>

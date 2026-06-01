@@ -58,7 +58,7 @@ export default function UrlChecker() {
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-glass-border rounded-xl bg-white dark:bg-black/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-blue focus:border-transparent transition-all duration-300"
+              className="block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-glass-border rounded-xl bg-white dark:bg-black/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-green focus:border-transparent transition-all duration-300"
               placeholder="Contoh: https://bit.ly/undian-berhadiah"
             />
           </div>
@@ -67,15 +67,15 @@ export default function UrlChecker() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-cyber-blue text-slate-900 dark:text-white font-semibold rounded-xl transition-all duration-300 shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+          className="w-full sm:w-auto px-6 py-3 bg-cyber-green text-cyber-dark font-bold hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] rounded-xl transition-all duration-300 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-[0_0_20px_rgba(0,230,92,0.2)] group"
         >
           {loading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin text-cyber-blue" /> <span className="text-slate-700 dark:text-slate-300 transition-colors duration-300">Menganalisis URL...</span>
+              <Loader2 className="w-5 h-5 animate-spin text-cyber-dark" /> <span className="text-cyber-dark transition-colors duration-300">Menganalisis URL...</span>
             </>
           ) : (
             <>
-              <span className="group-hover:text-cyber-blue transition-colors">Periksa URL</span>
+              <span className="text-cyber-dark transition-colors">Periksa URL</span>
             </>
           )}
         </button>

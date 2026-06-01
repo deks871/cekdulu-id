@@ -61,7 +61,7 @@ export default function ChatAnalyzer() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={6}
-              className="block w-full p-4 border border-slate-200 dark:border-glass-border rounded-xl bg-white dark:bg-black/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-yellow focus:border-transparent transition-all duration-300 resize-none"
+              className="block w-full p-4 border border-slate-200 dark:border-glass-border rounded-xl bg-white dark:bg-black/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-green focus:border-transparent transition-all duration-300 resize-none"
               placeholder="Paste teks pesan di sini... (Contoh: Selamat nomor Anda memenangkan undian Rp 100 juta. Klik link berikut untuk klaim hadiah!)"
             />
           </div>
@@ -77,14 +77,14 @@ export default function ChatAnalyzer() {
         <button
           type="submit"
           disabled={loading || text.length === 0 || text.length > 2000}
-          className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-cyber-yellow dark:hover:border-cyber-yellow text-slate-900 dark:text-white font-semibold rounded-xl transition-all shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group duration-300"
+          className="w-full sm:w-auto px-6 py-3 bg-cyber-green text-cyber-dark font-bold hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] rounded-xl transition-all duration-300 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-[0_0_20px_rgba(0,230,92,0.2)] group"
         >
           {loading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin text-cyber-yellow" /> <span className="text-slate-700 dark:text-slate-300">Menganalisis Teks...</span>
+              <Loader2 className="w-5 h-5 animate-spin text-cyber-dark" /> <span className="text-cyber-dark">Menganalisis Teks...</span>
             </>
           ) : (
-            <><MessageSquare className="w-5 h-5 group-hover:text-cyber-yellow transition-colors" /> <span className="group-hover:text-cyber-yellow transition-colors">Analisis Chat</span></>
+            <><MessageSquare className="w-5 h-5 text-cyber-dark transition-colors" /> <span className="text-cyber-dark transition-colors">Analisis Chat</span></>
           )}
         </button>
       </form>
