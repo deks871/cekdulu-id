@@ -137,34 +137,34 @@ export default function OcrAnalyzer() {
   return (
     <div>
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-white mb-2">OCR Investigation Mode</h3>
-        <p className="text-gray-400 text-sm">Unggah hingga 5 screenshot percakapan atau bukti transfer. Kami akan menganalisis semuanya untuk mencari indikator penipuan.</p>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 transition-colors duration-300">OCR Investigation Mode</h3>
+        <p className="text-slate-600 dark:text-gray-400 text-sm transition-colors duration-300">Unggah hingga 5 screenshot percakapan atau bukti transfer. Kami akan menganalisis semuanya untuk mencari indikator penipuan.</p>
       </div>
       
       <div className="space-y-6">
         {previews.length === 0 ? (
           <div 
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-glass-border hover:border-cyber-green/50 rounded-xl p-12 text-center cursor-pointer transition-colors bg-black/20 group"
+            className="border-2 border-dashed border-slate-300 dark:border-glass-border hover:border-cyber-green/50 rounded-xl p-12 text-center cursor-pointer transition-colors bg-slate-50 dark:bg-black/20 group duration-300"
           >
-            <Upload className="w-12 h-12 text-gray-500 group-hover:text-cyber-green mx-auto mb-4 transition-colors" />
-            <p className="text-white font-medium mb-1">Klik untuk mengunggah screenshot</p>
-            <p className="text-sm text-gray-500">Pilih 1 hingga 5 gambar (Maks 5MB/gambar)</p>
+            <Upload className="w-12 h-12 text-slate-400 dark:text-gray-500 group-hover:text-cyber-green mx-auto mb-4 transition-colors" />
+            <p className="text-slate-900 dark:text-white font-medium mb-1 transition-colors duration-300">Klik untuk mengunggah screenshot</p>
+            <p className="text-sm text-slate-500 dark:text-gray-500 transition-colors duration-300">Pilih 1 hingga 5 gambar (Maks 5MB/gambar)</p>
           </div>
         ) : (
-          <div className="bg-black/30 border border-glass-border rounded-xl p-6 flex flex-col items-center">
+          <div className="bg-white dark:bg-black/30 border border-slate-200 dark:border-glass-border rounded-xl p-6 flex flex-col items-center transition-colors duration-300">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full mb-6">
               {previews.map((preview, index) => (
-                <div key={index} className="relative group rounded-lg overflow-hidden border border-slate-700 bg-slate-800/50 aspect-[3/4]">
+                <div key={index} className="relative group rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 aspect-[3/4]">
                   <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
                   <button 
                     onClick={() => removeFile(index)}
                     disabled={loading}
-                    className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-rose-500 text-white rounded-full transition-colors disabled:opacity-50"
+                    className="absolute top-2 right-2 p-1.5 bg-slate-800/60 dark:bg-black/60 hover:bg-rose-500 text-white rounded-full transition-colors disabled:opacity-50"
                   >
                     <X className="w-4 h-4" />
                   </button>
-                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1 text-center text-xs text-slate-300 backdrop-blur-sm">
+                  <div className="absolute bottom-0 left-0 right-0 bg-slate-800/60 dark:bg-black/60 p-1 text-center text-xs text-white dark:text-slate-300 backdrop-blur-sm">
                     Gambar {index + 1}
                   </div>
                 </div>
@@ -173,10 +173,10 @@ export default function OcrAnalyzer() {
               {previews.length < MAX_FILES && !loading && (
                 <div 
                   onClick={() => fileInputRef.current?.click()}
-                  className="rounded-lg border-2 border-dashed border-slate-700 hover:border-cyber-green/50 flex flex-col items-center justify-center cursor-pointer transition-colors aspect-[3/4] bg-slate-800/30 group"
+                  className="rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-cyber-green/50 flex flex-col items-center justify-center cursor-pointer transition-colors aspect-[3/4] bg-slate-50 dark:bg-slate-800/30 group"
                 >
-                  <Upload className="w-6 h-6 text-slate-500 group-hover:text-cyber-green mb-2" />
-                  <span className="text-xs text-slate-400 group-hover:text-slate-300">Tambah</span>
+                  <Upload className="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-cyber-green mb-2" />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300">Tambah</span>
                 </div>
               )}
             </div>
@@ -184,7 +184,7 @@ export default function OcrAnalyzer() {
             <div className="flex gap-4">
               <button 
                 onClick={() => { setFiles([]); setPreviews([]); setResult(null); setExtractedText(""); }}
-                className="px-4 py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                 disabled={loading}
               >
                 Hapus Semua
@@ -192,10 +192,10 @@ export default function OcrAnalyzer() {
               <button
                 onClick={handleAnalyze}
                 disabled={loading}
-                className="px-6 py-2 bg-slate-800 border border-slate-700 hover:border-cyber-green text-white font-semibold rounded-lg transition-all shadow-lg disabled:opacity-50 flex items-center gap-2 group"
+                className="px-6 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-cyber-green text-slate-900 dark:text-white font-semibold rounded-lg transition-all shadow-lg disabled:opacity-50 flex items-center gap-2 group duration-300"
               >
                 {loading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin text-cyber-green" /> <span className="text-slate-300 text-xs">{loadingStep}</span></>
+                  <><Loader2 className="w-4 h-4 animate-spin text-cyber-green" /> <span className="text-slate-700 dark:text-slate-300 text-xs">{loadingStep}</span></>
                 ) : (
                   <><FileImage className="w-4 h-4 group-hover:text-cyber-green transition-colors" /> <span className="group-hover:text-cyber-green transition-colors">Mulai Investigasi</span></>
                 )}
@@ -218,10 +218,10 @@ export default function OcrAnalyzer() {
 
       {result && (
         <div className="mt-8 space-y-4">
-          <div className="flex items-center gap-2 text-sm text-slate-400 px-2">
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 px-2 transition-colors duration-300">
             <div className="w-1.5 h-1.5 rounded-full bg-cyber-green"></div>
             <span>{result.imageCount} screenshot dianalisis</span>
-            <span className="text-slate-600">•</span>
+            <span className="text-slate-400 dark:text-slate-600">•</span>
             <span>{result.details?.length || 0} indikator penipuan terdeteksi</span>
           </div>
           
@@ -234,18 +234,18 @@ export default function OcrAnalyzer() {
           />
           
           {extractedText && (
-            <div className="border border-slate-800 rounded-xl overflow-hidden bg-black/20 mt-4 transition-all">
+            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-black/20 mt-4 transition-all duration-300">
               <button 
                 onClick={() => setIsTextExpanded(!isTextExpanded)}
-                className="w-full px-5 py-4 flex items-center justify-between text-slate-300 hover:bg-slate-800/50 transition-colors"
+                className="w-full px-5 py-4 flex items-center justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
               >
                 <span className="text-sm font-semibold uppercase tracking-wider">Lihat Teks yang Diekstrak</span>
                 {isTextExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
               
               {isTextExpanded && (
-                <div className="px-5 py-4 border-t border-slate-800 bg-black/40">
-                  <pre className="text-xs text-slate-400 whitespace-pre-wrap font-mono overflow-auto max-h-[400px] leading-relaxed custom-scrollbar">
+                <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-black/40 transition-colors duration-300">
+                  <pre className="text-xs text-slate-600 dark:text-slate-400 whitespace-pre-wrap font-mono overflow-auto max-h-[400px] leading-relaxed custom-scrollbar transition-colors duration-300">
                     {extractedText}
                   </pre>
                 </div>

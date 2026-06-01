@@ -3,23 +3,23 @@ import { ShieldCheck } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="glass border-t border-glass-border mt-auto">
+    <footer className="glass border-t border-glass-border mt-auto transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
         {/* Top Section: Brand and Links */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-6 w-6 text-cyber-green" />
-            <span className="font-outfit font-bold text-lg text-white">
+            <span className="font-outfit font-bold text-lg text-slate-900 dark:text-white transition-colors duration-300">
               CekDulu<span className="text-cyber-green">.id</span>
             </span>
           </div>
 
           <div className="flex space-x-6 text-sm">
-            <Link href="/edukasi" className="text-gray-400 hover:text-white transition">
+            <Link href="/edukasi" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition">
               Edukasi
             </Link>
-            <Link href="/tentang" className="text-gray-400 hover:text-white transition">
+            <Link href="/tentang" className="text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition">
               Tentang
             </Link>
           </div>
@@ -28,10 +28,10 @@ export default function Footer() {
         {/* Middle Section: Kritik & Saran */}
         <div className="border-t border-b border-glass-border py-8 mb-8">
           <div className="flex flex-col items-center text-center gap-4 max-w-3xl mx-auto">
-            <h3 className="text-white font-bold text-lg flex items-center justify-center gap-2">
+            <h3 className="text-slate-900 dark:text-white font-bold text-lg flex items-center justify-center gap-2 transition-colors duration-300">
               Bantu Tingkatkan CekDulu.id
             </h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed transition-colors duration-300">
               Jika Anda menemukan bug, hasil analisis yang kurang akurat, atau memiliki saran fitur baru, silakan kirim masukan melalui WhatsApp. Setiap kritik dan saran akan sangat membantu proses pengembangan platform ini.
             </p>
             <a
@@ -54,10 +54,10 @@ export default function Footer() {
 
         {/* Bottom Section: Copyright and Beta Notice */}
         <div className="flex flex-col items-center text-center">
-          <p className="text-gray-400 text-sm">
+          <p className="text-slate-500 dark:text-gray-400 text-sm transition-colors duration-300">
             &copy; {new Date().getFullYear()} CekDulu.id - Solusi Anti-Scam Indonesia. MVP Demo.
           </p>
-          <p className="text-gray-500/50 text-xs mt-2 max-w-md">
+          <p className="text-slate-400 dark:text-gray-500/50 text-xs mt-2 max-w-md transition-colors duration-300">
             Versi saat ini masih bersifat beta dan akan terus diperbarui berdasarkan masukan pengguna.
           </p>
         </div>

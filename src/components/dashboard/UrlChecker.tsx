@@ -43,8 +43,8 @@ export default function UrlChecker() {
   return (
     <div>
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-white mb-2">URL Checker</h3>
-        <p className="text-gray-400 text-sm">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 transition-colors duration-300">URL Checker</h3>
+        <p className="text-slate-600 dark:text-gray-400 text-sm transition-colors duration-300">
           Cek apakah sebuah tautan (link) aman dari pishing atau penipuan.
         </p>
       </div>
@@ -52,13 +52,13 @@ export default function UrlChecker() {
         <div>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Link className="h-5 w-5 text-gray-500" />
+              <Link className="h-5 w-5 text-slate-400 dark:text-gray-500 transition-colors duration-300" />
             </div>
             <input
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="block w-full pl-10 pr-3 py-3 border border-glass-border rounded-xl bg-black/30 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-blue focus:border-transparent transition-all"
+              className="block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-glass-border rounded-xl bg-white dark:bg-black/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-blue focus:border-transparent transition-all duration-300"
               placeholder="Contoh: https://bit.ly/undian-berhadiah"
             />
           </div>
@@ -67,11 +67,11 @@ export default function UrlChecker() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 border border-slate-700 hover:border-cyber-blue text-white font-semibold rounded-xl transition-all shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+          className="w-full sm:w-auto px-6 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:border-cyber-blue text-slate-900 dark:text-white font-semibold rounded-xl transition-all duration-300 shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
         >
           {loading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin text-cyber-blue" /> <span className="text-slate-300">Menganalisis URL...</span>
+              <Loader2 className="w-5 h-5 animate-spin text-cyber-blue" /> <span className="text-slate-700 dark:text-slate-300 transition-colors duration-300">Menganalisis URL...</span>
             </>
           ) : (
             <>

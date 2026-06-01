@@ -50,8 +50,8 @@ export default function ChatAnalyzer() {
   return (
     <div>
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-white mb-2">Chat Analyzer</h3>
-        <p className="text-gray-400 text-sm">Salin dan tempel pesan WhatsApp atau SMS yang mencurigakan.</p>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 transition-colors duration-300">Chat Analyzer</h3>
+        <p className="text-slate-600 dark:text-gray-400 text-sm transition-colors duration-300">Salin dan tempel pesan WhatsApp atau SMS yang mencurigakan.</p>
       </div>
       
       <form onSubmit={handleAnalyze} className="space-y-4">
@@ -61,14 +61,14 @@ export default function ChatAnalyzer() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={6}
-              className="block w-full p-4 border border-glass-border rounded-xl bg-black/30 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-yellow focus:border-transparent transition-all resize-none"
+              className="block w-full p-4 border border-slate-200 dark:border-glass-border rounded-xl bg-white dark:bg-black/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-yellow focus:border-transparent transition-all duration-300 resize-none"
               placeholder="Paste teks pesan di sini... (Contoh: Selamat nomor Anda memenangkan undian Rp 100 juta. Klik link berikut untuk klaim hadiah!)"
             />
           </div>
           <div className="flex justify-between mt-2">
             {error && <p className="text-sm text-cyber-red">{error}</p>}
             {!error && <span></span>}
-            <span className={`text-xs ${text.length > 2000 ? 'text-cyber-red' : 'text-gray-500'}`}>
+            <span className={`text-xs transition-colors duration-300 ${text.length > 2000 ? 'text-cyber-red' : 'text-slate-500 dark:text-gray-500'}`}>
               {text.length}/2000
             </span>
           </div>
@@ -77,11 +77,11 @@ export default function ChatAnalyzer() {
         <button
           type="submit"
           disabled={loading || text.length === 0 || text.length > 2000}
-          className="w-full sm:w-auto px-6 py-3 bg-slate-800 border border-slate-700 hover:border-cyber-yellow text-white font-semibold rounded-xl transition-all shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
+          className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-cyber-yellow dark:hover:border-cyber-yellow text-slate-900 dark:text-white font-semibold rounded-xl transition-all shadow-lg flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group duration-300"
         >
           {loading ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin text-cyber-yellow" /> <span className="text-slate-300">Menganalisis Teks...</span>
+              <Loader2 className="w-5 h-5 animate-spin text-cyber-yellow" /> <span className="text-slate-700 dark:text-slate-300">Menganalisis Teks...</span>
             </>
           ) : (
             <><MessageSquare className="w-5 h-5 group-hover:text-cyber-yellow transition-colors" /> <span className="group-hover:text-cyber-yellow transition-colors">Analisis Chat</span></>

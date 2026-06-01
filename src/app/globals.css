@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-cyber-dark: #0a0a0a; /* Neutral dark */
   --color-cyber-darker: #000000; /* Pure black */
@@ -7,15 +9,31 @@
   --color-cyber-blue: #0ea5e9; /* Sky 500 */
   --color-cyber-red: #ef4444; /* Red 500 */
   --color-cyber-yellow: #f59e0b; /* Amber 500 */
-  --color-glass: rgba(10, 10, 10, 0.6);
-  --color-glass-border: rgba(255, 255, 255, 0.08);
 }
 
 @layer base {
   :root {
+    color-scheme: light;
+    --background: #f8fafc;
+    --foreground: #0f172a;
+    --color-glass: rgba(255, 255, 255, 0.85);
+    --color-glass-border: rgba(0, 0, 0, 0.08);
+    --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --glass-card-bg: rgba(255, 255, 255, 0.85);
+    --glass-card-border: rgba(0, 0, 0, 0.05);
+    --glass-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark {
     color-scheme: dark;
     --background: var(--color-cyber-darker);
-    --foreground: #f8fafc; /* Slate 50 */
+    --foreground: #f8fafc;
+    --color-glass: rgba(10, 10, 10, 0.6);
+    --color-glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    --glass-card-bg: rgba(10, 10, 10, 0.8);
+    --glass-card-border: rgba(255, 255, 255, 0.1);
+    --glass-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
   }
   
   html {
@@ -25,10 +43,9 @@
   body {
     background-color: var(--background);
     color: var(--foreground);
-    /* Vibrant yet professional top gradient */
-    background-image: 
-      radial-gradient(circle at 50% 0%, rgba(0, 230, 92, 0.08), transparent 50%);
+    background-image: radial-gradient(circle at 50% 0%, rgba(0, 230, 92, 0.08), transparent 50%);
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
 
@@ -37,15 +54,17 @@
     background-color: var(--color-glass);
     backdrop-filter: blur(8px);
     border: 1px solid var(--color-glass-border);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--glass-shadow);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
   
   .glass-card {
-    background-color: rgba(10, 10, 10, 0.8);
+    background-color: var(--glass-card-bg);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-card-border);
     border-radius: 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--glass-card-shadow);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
   
   .text-gradient {
