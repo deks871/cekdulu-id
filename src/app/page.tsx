@@ -102,22 +102,22 @@ export default function Home() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 },
+      transition: { staggerChildren: 0.15, delayChildren: 0.1 },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
+    hidden: { y: 15, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" } },
   };
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative px-4 pt-32 pb-32 flex items-center justify-center min-h-[95vh] overflow-hidden">
-        {/* Ambient Glow Effects - Toned down for professional look */}
-        <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-cyber-green/10 rounded-full blur-[120px] md:blur-[150px] -z-10 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-[10%] w-[300px] h-[300px] bg-cyber-green/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+      <section className="relative px-4 py-8 md:py-12 flex items-center justify-center min-h-[calc(100vh-5rem)] overflow-hidden">
+        {/* Ambient Glow Effects - Refined for premium look */}
+        <div className="absolute top-1/2 left-[15%] -translate-y-1/2 w-[250px] md:w-[350px] h-[250px] md:h-[350px] bg-cyber-green/15 rounded-full blur-[100px] -z-10 pointer-events-none opacity-80"></div>
+        <div className="absolute top-1/2 right-[15%] -translate-y-1/2 w-[300px] md:w-[450px] h-[300px] md:h-[450px] bg-cyber-green/15 rounded-full blur-[120px] -z-10 pointer-events-none opacity-80"></div>
         
         <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-8 items-center z-10">
           
@@ -128,18 +128,18 @@ export default function Home() {
             animate="visible"
             variants={containerVariants}
           >
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyber-green/50 bg-cyber-green/20 mb-8 shadow-[0_0_25px_rgba(0,230,92,0.3)] backdrop-blur-md">
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyber-green/50 bg-cyber-green/20 mb-6 shadow-[0_0_25px_rgba(0,230,92,0.3)] backdrop-blur-md">
               <ShieldCheck className="w-4 h-4 text-cyber-green" />
               <span className="text-sm text-cyber-green font-semibold tracking-wide">Platform Deteksi Risiko Penipuan Online</span>
             </motion.div>
             
-            <motion.h1 variants={itemVariants} className="text-5xl md:text-6xl lg:text-[4.5rem] font-outfit font-bold mb-6 tracking-tight text-white leading-[1.1]">
+            <motion.h1 variants={itemVariants} className="text-5xl md:text-6xl lg:text-[4.5rem] font-outfit font-bold mb-5 tracking-tight text-white leading-[1.1]">
               Deteksi Penipuan Digital <br className="hidden md:block" />
               dalam <span className="text-cyber-green drop-shadow-[0_0_30px_rgba(0,255,102,0.3)]">Hitungan Detik.</span>
             </motion.h1>
             
-            <motion.p variants={itemVariants} className="text-lg md:text-xl text-gray-400 mb-10 max-w-xl leading-relaxed">
-              Analisis URL, chat, dan screenshot untuk membantu mengidentifikasi indikasi penipuan online sebelum Anda bertransaksi.
+            <motion.p variants={itemVariants} className="text-lg md:text-xl text-gray-400 mb-8 max-w-xl leading-relaxed">
+              Analisis URL, percakapan, dan bukti transaksi untuk membantu mendeteksi indikasi phishing, scam, dan manipulasi digital sebelum Anda mengambil keputusan.
             </motion.p>
             
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
@@ -151,7 +151,7 @@ export default function Home() {
               </Link>
               <a 
                 href="#cara-kerja"
-                className="px-8 py-4 rounded-xl border border-white/20 bg-white/5 text-white font-medium text-lg hover:bg-white/10 hover:border-white/40 transition-all duration-300 backdrop-blur-sm text-center"
+                className="px-8 py-4 rounded-xl border border-white/20 bg-white/5 text-white font-medium text-lg hover:bg-white/10 hover:border-cyber-green/50 hover:text-cyber-green hover:shadow-[0_0_20px_rgba(0,230,92,0.15)] transition-all duration-300 backdrop-blur-sm text-center group"
               >
                 Pelajari Cara Kerja
               </a>
@@ -162,8 +162,8 @@ export default function Home() {
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            className="relative h-[500px] md:h-[600px] w-full flex items-center justify-center lg:justify-end mt-4 lg:mt-0 perspective-[1200px]"
+            transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+            className="relative h-[500px] md:h-[600px] w-full flex items-center justify-center lg:justify-end mt-4 lg:mt-0 perspective-[1200px] lg:pr-8"
           >
             {/* Phone 2 (Left / Behind) */}
             <PhoneMockup 
