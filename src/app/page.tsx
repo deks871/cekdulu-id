@@ -51,14 +51,14 @@ const PhoneMockup = ({
       <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-tr from-white/10 via-transparent to-transparent pointer-events-none z-30 opacity-50"></div>
       <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-bl from-cyber-green/5 via-transparent to-transparent pointer-events-none z-30"></div>
 
-      <div className="w-full h-full bg-[#05070a] rounded-[2.85rem] overflow-hidden relative border-[6px] border-gray-900">
+      <div className="w-full h-full bg-[#050505] rounded-[2.85rem] overflow-hidden relative border-[6px] border-gray-900">
         {/* Notch */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-gray-900 rounded-b-2xl z-20 flex justify-center items-end pb-1.5 shadow-sm">
           <div className="w-12 h-1 bg-gray-800 rounded-full"></div>
         </div>
 
         {/* Screen content */}
-        <div className="p-5 pt-14 h-full flex flex-col relative z-10 text-left bg-gradient-to-b from-[#0a0e17] to-[#05070a]">
+        <div className="p-5 pt-14 h-full flex flex-col relative z-10 text-left bg-gradient-to-b from-[#0a0a0a] to-[#050505]">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-8 h-8 rounded-full bg-cyber-green/20 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4 text-cyber-green" />
@@ -116,8 +116,8 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative px-4 pt-32 pb-32 flex items-center justify-center min-h-[95vh] overflow-hidden">
         {/* Ambient Glow Effects - Toned down for professional look */}
-        <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-cyber-green/5 rounded-full blur-[120px] md:blur-[150px] -z-10 pointer-events-none"></div>
-        <div className="absolute bottom-0 left-[10%] w-[300px] h-[300px] bg-cyber-blue/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+        <div className="absolute top-1/2 right-[10%] -translate-y-1/2 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-cyber-green/10 rounded-full blur-[120px] md:blur-[150px] -z-10 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-[10%] w-[300px] h-[300px] bg-cyber-green/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
         
         <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-8 items-center z-10">
           
@@ -128,7 +128,7 @@ export default function Home() {
             animate="visible"
             variants={containerVariants}
           >
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyber-green/40 bg-cyber-green/10 mb-8 shadow-[0_0_20px_rgba(0,255,102,0.15)] backdrop-blur-md">
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyber-green/50 bg-cyber-green/20 mb-8 shadow-[0_0_25px_rgba(0,230,92,0.3)] backdrop-blur-md">
               <ShieldCheck className="w-4 h-4 text-cyber-green" />
               <span className="text-sm text-cyber-green font-semibold tracking-wide">Platform Deteksi Risiko Penipuan Online</span>
             </motion.div>
@@ -145,7 +145,7 @@ export default function Home() {
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               <Link 
                 href="/dashboard"
-                className="px-8 py-4 rounded-xl bg-cyber-green text-cyber-dark font-bold text-lg hover:bg-[#00e65c] hover:shadow-[0_0_30px_rgba(0,255,102,0.4)] transition-all duration-300 flex items-center justify-center gap-2 group"
+                className="px-8 py-4 rounded-xl bg-cyber-green text-cyber-dark font-bold text-lg hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] transition-all duration-300 flex items-center justify-center gap-2 group"
               >
                 Mulai Analisis <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
               </Link>
@@ -242,11 +242,11 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-6 rounded-2xl hover:bg-white/[0.04] hover:border-cyber-green/30 transition-all duration-300 flex flex-col group relative overflow-hidden"
+                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-6 rounded-2xl hover:bg-white/[0.04] hover:border-cyber-green/50 hover:shadow-[0_0_30px_rgba(0,230,92,0.1)] transition-all duration-300 flex flex-col group relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-cyber-green/10 rounded-full blur-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-cyber-green/20 rounded-full blur-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
-                <div className="w-14 h-14 rounded-xl bg-cyber-green/5 border border-cyber-green/20 flex items-center justify-center mb-6 group-hover:bg-cyber-green/10 transition-colors relative z-10">
+                <div className="w-14 h-14 rounded-xl bg-cyber-green/10 border border-cyber-green/30 flex items-center justify-center mb-6 group-hover:bg-cyber-green/20 transition-colors relative z-10">
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-3 relative z-10">{feature.title}</h3>
@@ -284,7 +284,7 @@ export default function Home() {
                   transition={{ delay: i * 0.15 }}
                   className="relative flex flex-col items-center md:items-start text-center md:text-left group"
                 >
-                  <div className="w-24 h-24 rounded-2xl bg-cyber-dark border border-white/10 flex items-center justify-center mb-6 group-hover:border-cyber-green/50 group-hover:bg-cyber-green/5 transition-colors z-10 relative">
+                  <div className="w-24 h-24 rounded-2xl bg-cyber-dark border border-white/10 flex items-center justify-center mb-6 group-hover:border-cyber-green/60 group-hover:bg-cyber-green/15 group-hover:shadow-[0_0_20px_rgba(0,230,92,0.15)] transition-all z-10 relative">
                     <span className="text-3xl font-bold text-cyber-green font-outfit">{item.step}</span>
                   </div>
                   <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
@@ -335,11 +335,11 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15 }}
-                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-8 rounded-2xl hover:bg-white/[0.04] hover:border-cyber-green/30 transition-all duration-300 relative group overflow-hidden"
+                className="bg-white/[0.02] backdrop-blur-xl border border-white/10 p-8 rounded-2xl hover:bg-white/[0.04] hover:border-cyber-green/50 hover:shadow-[0_0_30px_rgba(0,230,92,0.1)] transition-all duration-300 relative group overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-cyber-green/10 rounded-full blur-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-cyber-green/20 rounded-full blur-[40px] -mr-8 -mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
 
-                <div className="mb-6 bg-cyber-green/5 border border-cyber-green/20 p-4 rounded-xl inline-block group-hover:bg-cyber-green/10 transition-colors relative z-10">
+                <div className="mb-6 bg-cyber-green/10 border border-cyber-green/30 p-4 rounded-xl inline-block group-hover:bg-cyber-green/20 transition-colors relative z-10">
                   {method.icon}
                 </div>
                 <h3 className="text-xl font-bold text-white mb-4 relative z-10">{method.title}</h3>
@@ -371,9 +371,9 @@ export default function Home() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col items-start hover:bg-white/10 transition-colors"
+                className="bg-white/5 border border-white/10 rounded-xl p-6 flex flex-col items-start hover:bg-white/10 hover:border-cyber-green/30 transition-all"
               >
-                <div className="mb-4 bg-cyber-green/10 p-3 rounded-lg">
+                <div className="mb-4 bg-cyber-green/15 p-3 rounded-lg border border-cyber-green/20">
                   {item.icon}
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
@@ -386,12 +386,12 @@ export default function Home() {
 
       {/* Bottom CTA */}
       <section className="py-32 text-center relative px-4 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-cyber-green/5 rounded-[100%] blur-[120px] -z-10"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-cyber-green/10 rounded-[100%] blur-[120px] -z-10"></div>
         <h2 className="text-4xl font-bold text-white font-outfit mb-6">Siap Mengamankan Transaksi Anda?</h2>
         <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">Verifikasi sekarang sebelum Anda menjadi korban penipuan berikutnya.</p>
         <Link 
           href="/dashboard"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-cyber-green text-cyber-dark font-bold text-lg hover:bg-[#00e65c] transition-colors"
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-cyber-green text-cyber-dark font-bold text-lg hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] transition-all"
         >
           Coba Gratis Sekarang <ArrowRight className="w-5 h-5" />
         </Link>
