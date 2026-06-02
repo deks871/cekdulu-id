@@ -7,10 +7,12 @@ interface ScoreResultProps {
   category?: string;
   analysis?: string;
   details?: string[];
+  urlDetails?: string[];
+  contentDetails?: string[];
   isMock?: boolean;
 }
 
-export default function ScoreResult({ score, category, analysis, details, isMock }: ScoreResultProps) {
+export default function ScoreResult({ score, category, analysis, details, urlDetails, contentDetails, isMock }: ScoreResultProps) {
   const isSafe = score <= 30;
   const isWarning = score > 30 && score <= 70;
   const isDanger = score > 70;
@@ -73,30 +75,64 @@ export default function ScoreResult({ score, category, analysis, details, isMock
       
       {/* Body section */}
       <div className="p-6">
-        <div className="mb-6">
-          <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide transition-colors duration-300">
-            <Info className="w-4 h-4" /> Temuan Analisis
-          </h4>
-          
-          {Array.isArray(details) && details.length > 0 ? (
+        {urlDetails && urlDetails.length > 0 && (
+          <div className="mb-6">
+            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide transition-colors duration-300">
+              <Info className="w-4 h-4" /> Indikator Risiko URL
+            </h4>
             <ul className="space-y-3">
-              {details.map((detail, index) => (
+              {urlDetails.map((detail, index) => (
                 <li key={index} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
-                  {isSafe ? (
-                    <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />
-                  ) : (
-                    <AlertOctagon className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />
-                  )}
+                  {isSafe ? <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} /> : <AlertOctagon className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />}
                   <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
                 </li>
               ))}
             </ul>
-          ) : (
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">
-              {analysis || "Tidak ada detail spesifik yang ditemukan."}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {contentDetails && contentDetails.length > 0 && (
+          <div className="mb-6">
+            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide transition-colors duration-300">
+              <Info className="w-4 h-4" /> Indikator Risiko Konten
+            </h4>
+            <ul className="space-y-3">
+              {contentDetails.map((detail, index) => (
+                <li key={index} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
+                  {isSafe ? <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} /> : <AlertOctagon className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />}
+                  <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {!urlDetails && (
+          <div className="mb-6">
+            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide transition-colors duration-300">
+              <Info className="w-4 h-4" /> Temuan Analisis
+            </h4>
+            
+            {Array.isArray(details) && details.length > 0 ? (
+              <ul className="space-y-3">
+                {details.map((detail, index) => (
+                  <li key={index} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
+                    {isSafe ? (
+                      <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />
+                    ) : (
+                      <AlertOctagon className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />
+                    )}
+                    <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">
+                {analysis || "Tidak ada detail spesifik yang ditemukan."}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Recommendation section */}
         <div className={`p-4 rounded-lg border ${recBgColor} transition-colors duration-300`}>

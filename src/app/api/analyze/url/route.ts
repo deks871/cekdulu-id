@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkDomainAge } from "@/lib/domainAge";
+import { analyzeUrl } from "@/lib/urlAnalyzer";
+import { analyzeContent } from "@/lib/contentAnalyzer";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -7,7 +9,11 @@ interface AnalysisResult {
   score: number;
   label: string;
   details: string[];
+  urlDetails?: string[];
+  contentDetails?: string[];
   source?: string;
+  riskLevel?: string;
+  extractedFeatures?: any;
 }
 
 // ─── Known shortlink domains ──────────────────────────────────────────────────
@@ -103,167 +109,24 @@ async function checkGoogleSafeBrowsing(url: string): Promise<boolean | null> {
   }
 }
 
-// ─── Heuristic engine (unchanged, kept as fallback) ──────────────────────────
+// ─── URL Analyzer Engine ──────────────────────────────────────────────────────
 
 function analyzeUrlHeuristic(url: string): AnalysisResult {
-  const details: string[] = [];
-  let score = 0;
+  const result = analyzeUrl(url);
 
-  try {
-    const parsed = new URL(url);
-    const hostname = parsed.hostname.toLowerCase();
-    const fullUrl = url.toLowerCase();
+  let label = "RELATIF AMAN";
+  if (result.riskLevel === "Kritis") label = "KEMUNGKINAN PENIPUAN";
+  else if (result.riskLevel === "Tinggi") label = "RISIKO TINGGI";
+  else if (result.riskLevel === "Sedang") label = "PERLU DIWASPADAI";
 
-    const trustedDomains = [
-      "google.com",
-      "github.com",
-      "microsoft.com",
-      "apple.com",
-      "tokopedia.com",
-      "shopee.co.id",
-      "dana.id",
-      "ovo.id",
-      "bca.co.id",
-      "bni.co.id",
-      "bankmandiri.co.id",
-    ];
-
-    if (
-      trustedDomains.some(
-        domain =>
-          hostname === domain ||
-          hostname.endsWith("." + domain)
-      )
-    ) {
-      return {
-        score: 0,
-        label: "RELATIF AMAN",
-        details: ["Domain termasuk whitelist terpercaya"],
-        source: "whitelist",
-      };
-    }
-
-    // Typosquatting normalization
-    const normalizedHost = hostname
-      .replace(/0/g, "o")
-      .replace(/1/g, "l")
-      .replace(/3/g, "e")
-      .replace(/5/g, "s")
-      .replace(/7/g, "t")
-      .replace(/@/g, "a");
-
-    // Popular brands
-    const trustedBrands = [
-      "google",
-      "facebook",
-      "paypal",
-      "microsoft",
-      "apple",
-      "tokopedia",
-      "shopee",
-      "dana",
-      "ovo",
-      "gopay",
-      "bca",
-      "mandiri",
-      "bni"
-    ];
-
-    // Detect typosquatting
-    for (const brand of trustedBrands) {
-      if (
-        normalizedHost.includes(brand) &&
-        !hostname.includes(brand)
-      ) {
-        score += 35;
-        details.push(`Terdeteksi kemungkinan typosquatting brand: ${brand}`);
-        break;
-      }
-    }
-
-    // 1. IP address as host
-    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) {
-      score += 30;
-      details.push("Menggunakan alamat IP langsung (bukan domain)");
-    }
-
-    // 2. Suspicious TLDs
-    const suspiciousTlds = [
-      ".xyz", ".top", ".click", ".loan", ".work",
-      ".gq", ".ml", ".cf", ".tk", ".ga",
-    ];
-    if (suspiciousTlds.some((t) => hostname.endsWith(t))) {
-      score += 15;
-      details.push("Menggunakan TLD yang sering dipakai penipu");
-    }
-
-    // 3. Phishing keywords in URL
-    const phishingKeywords = [
-      "login", "signin", "verify", "account", "secure", "update",
-      "banking", "paypal", "password", "confirm", "wallet",
-      "transfer", "hadiah", "bonus", "menang", "gratis", "promo",
-      "pulsa", "dana", "ovo", "gopay", "bca", "mandiri", "bni",
-    ];
-    const matchedKeywords = phishingKeywords.filter((kw) =>
-      fullUrl.includes(kw)
-    );
-    if (matchedKeywords.length > 0) {
-      score += Math.min(matchedKeywords.length * 5, 15);
-      details.push(
-        `Mengandung kata kunci mencurigakan: ${matchedKeywords.slice(0, 3).join(", ")}`
-      );
-    }
-
-    // 4. Excessive subdomains
-    const subdomainCount = hostname.split(".").length - 2;
-    if (subdomainCount >= 2) {
-      score += 10;
-      details.push("Memiliki terlalu banyak subdomain");
-    }
-
-    // 5. Long URL
-    if (url.length > 100) {
-      score += 5;
-      details.push("URL sangat panjang");
-    }
-
-    // 6. No HTTPS
-    if (parsed.protocol !== "https:") {
-      score += 15;
-      details.push("Tidak menggunakan HTTPS");
-    }
-
-    // 7. Hyphens in domain (common in typosquatting)
-    const domainParts = hostname.split(".");
-    const hasHyphens = domainParts.some((p) => p.includes("-"));
-    if (hasHyphens) {
-      score += 10;
-      details.push("Domain menggunakan tanda hubung (typosquatting)");
-    }
-
-    // 8. Numeric sequences
-    if (/\d{4,}/.test(hostname)) {
-      score += 5;
-      details.push("Domain mengandung angka panjang");
-    }
-
-    if (details.length === 0) {
-      details.push("Tidak ditemukan pola mencurigakan dari analisis heuristik");
-    }
-  } catch {
-    score = 50;
-    details.push("URL tidak valid atau tidak dapat diurai");
-  }
-
-  score = Math.min(score, 94); // cap below GSB range
-
-  let label: string;
-  if (score >= 75) label = "KEMUNGKINAN PENIPUAN";
-  else if (score >= 50) label = "RISIKO TINGGI";
-  else if (score >= 25) label = "PERLU DIWASPADAI";
-  else label = "RELATIF AMAN";
-
-  return { score, label, details, source: "heuristic" };
+  return { 
+    score: result.score, 
+    label, 
+    details: result.reasons, 
+    source: "url_analyzer",
+    riskLevel: result.riskLevel,
+    extractedFeatures: result.extractedFeatures
+  };
 }
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
@@ -339,17 +202,59 @@ export async function POST(req: NextRequest) {
     }
 
 
-    // If GSB confirmed clean but heuristic also clean, trust both
-    const result: AnalysisResult = { ...heuristic };
+    // Fetch and analyze content
+    let urlDetails = [...heuristic.details];
+    let contentDetails: string[] = [];
+    let finalScore = heuristic.score;
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      const htmlRes = await fetch(resolvedUrl, { 
+         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+         signal: controller.signal 
+      });
+      clearTimeout(timeout);
+      
+      if (htmlRes.ok) {
+        const html = await htmlRes.text();
+        const contentAnalysis = analyzeContent(html);
+        contentDetails = contentAnalysis.reasons;
+        
+        // Weighting: URL 40%, Content 60%
+        finalScore = Math.round((heuristic.score * 0.4) + (contentAnalysis.score * 0.6));
+      } else {
+        contentDetails.push("Konten website tidak dapat dianalisis, hasil berdasarkan analisis URL.");
+      }
+    } catch (e) {
+      contentDetails.push("Konten website tidak dapat dianalisis, hasil berdasarkan analisis URL.");
+    }
+
+    let label = "RELATIF AMAN";
+    let riskLevel = "Rendah";
+    if (finalScore >= 75) { label = "KEMUNGKINAN PENIPUAN"; riskLevel = "Kritis"; }
+    else if (finalScore >= 50) { label = "RISIKO TINGGI"; riskLevel = "Tinggi"; }
+    else if (finalScore >= 25) { label = "PERLU DIWASPADAI"; riskLevel = "Sedang"; }
+
+    const result: AnalysisResult = { 
+      ...heuristic, 
+      score: finalScore, 
+      label, 
+      riskLevel, 
+      urlDetails, 
+      contentDetails,
+      details: urlDetails.concat(contentDetails)
+    };
 
     if (wasShortlink) {
+      result.urlDetails!.unshift(`🔗 Shortlink mengarah ke: ${resolvedUrl}`);
       result.details.unshift(`🔗 Shortlink mengarah ke: ${resolvedUrl}`);
     }
 
     if (gsbFlagged === false) {
-      // GSB ran but found nothing — note it
+      result.urlDetails!.push("✅ Tidak ditemukan ancaman di Google Safe Browsing");
       result.details.push("✅ Tidak ditemukan ancaman di Google Safe Browsing");
-      result.source = "heuristic+google_safe_browsing";
+      result.source = "heuristic+content+google_safe_browsing";
     }
 
     return NextResponse.json({

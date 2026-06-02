@@ -9,6 +9,8 @@ export default function UrlChecker() {
     score: number;
     label: string;
     details: string[];
+    urlDetails?: string[];
+    contentDetails?: string[];
     isMock?: boolean;
   } | null>(null);
   const [error, setError] = useState("");
@@ -85,6 +87,8 @@ export default function UrlChecker() {
     score={result.score}
     category={result.label}
     details={result.details}
+    urlDetails={result.urlDetails}
+    contentDetails={result.contentDetails}
     isMock={result.isMock}
   />
 )}
