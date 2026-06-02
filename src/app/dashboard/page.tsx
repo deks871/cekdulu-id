@@ -29,8 +29,8 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
-          <h1 className="text-4xl font-bold font-outfit text-white mb-4">Dashboard <span className="text-cyber-green">Analisis</span></h1>
-          <p className="text-gray-400">Pilih alat yang Anda butuhkan untuk memverifikasi keamanan transaksi atau pesan.</p>
+          <h1 className="text-4xl font-bold font-outfit text-slate-900 dark:text-white mb-4 transition-colors duration-300">Dashboard <span className="text-cyber-green">Analisis</span></h1>
+          <p className="text-slate-600 dark:text-gray-400 transition-colors duration-300">Pilih alat yang Anda butuhkan untuk memverifikasi keamanan transaksi atau pesan.</p>
         </motion.div>
 
         <div className="glass-card overflow-hidden">
@@ -43,8 +43,8 @@ export default function Dashboard() {
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 py-4 px-6 text-sm font-medium transition-colors relative",
                   activeTab === tab.id 
-                    ? "text-white bg-white/5" 
-                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                    ? "text-slate-900 dark:text-white bg-slate-200/50 dark:bg-white/5" 
+                    : "text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/5"
                 )}
               >
                 {tab.icon}

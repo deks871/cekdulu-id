@@ -57,7 +57,7 @@ export default function Footer() {
           <p className="text-slate-500 dark:text-gray-400 text-sm transition-colors duration-300">
             &copy; {new Date().getFullYear()} CekDulu.id - Solusi Anti-Scam Indonesia. MVP Demo.
           </p>
-          <p className="text-slate-400 dark:text-gray-500/50 text-xs mt-2 max-w-md transition-colors duration-300">
+          <p className="text-slate-500 dark:text-gray-500/50 text-xs mt-2 max-w-md transition-colors duration-300">
             Versi saat ini masih bersifat beta dan akan terus diperbarui berdasarkan masukan pengguna.
           </p>
         </div>

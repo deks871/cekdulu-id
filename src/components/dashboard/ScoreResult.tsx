@@ -69,7 +69,7 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
         <div className="flex items-baseline gap-1 text-right">
           <span className="text-slate-500 dark:text-slate-400 text-sm uppercase tracking-wider font-semibold mr-2 transition-colors duration-300">Risk Score</span>
           <span className={`text-4xl font-outfit font-bold ${textColor} transition-colors duration-300`}>{score}</span>
-          <span className="text-slate-400 dark:text-slate-500 font-bold transition-colors duration-300">/100</span>
+          <span className="text-slate-500 dark:text-slate-400 font-bold transition-colors duration-300">/100</span>
         </div>
       </div>
       

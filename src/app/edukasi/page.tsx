@@ -35,8 +35,8 @@ export default function Edukasi() {
     <div className="min-h-screen py-16 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold font-outfit text-white mb-4">Edukasi <span className="text-cyber-green">Anti-Scam</span></h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">Mengenali ciri-ciri penipuan adalah pertahanan terbaik. Berikut adalah modus-modus penipuan online yang paling sering terjadi di Indonesia saat ini.</p>
+          <h1 className="text-4xl font-bold font-outfit text-slate-900 dark:text-white mb-4 transition-colors duration-300">Edukasi <span className="text-cyber-green">Anti-Scam</span></h1>
+          <p className="text-slate-600 dark:text-gray-400 max-w-2xl mx-auto transition-colors duration-300">Mengenali ciri-ciri penipuan adalah pertahanan terbaik. Berikut adalah modus-modus penipuan online yang paling sering terjadi di Indonesia saat ini.</p>
         </div>
 
         <div className="grid gap-8">
@@ -56,13 +56,13 @@ export default function Edukasi() {
               </div>
               
               <div>
-                <h3 className="text-2xl font-bold text-white mb-3">{scam.title}</h3>
-                <p className="text-gray-300 leading-relaxed mb-4">{scam.desc}</p>
+                <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 transition-colors duration-300">{scam.title}</h3>
+                <p className="text-slate-700 dark:text-gray-300 leading-relaxed mb-4 transition-colors duration-300">{scam.desc}</p>
                 <div className="bg-cyber-green/10 border border-cyber-green/20 rounded-lg p-4 flex gap-3">
                   <AlertCircle className="w-6 h-6 text-cyber-green shrink-0 mt-0.5" />
                   <div>
                     <span className="block text-sm font-bold text-cyber-green mb-1">TIPS PENCEGAHAN:</span>
-                    <p className="text-sm text-gray-300">{scam.tips}</p>
+                    <p className="text-sm text-slate-700 dark:text-gray-300 transition-colors duration-300">{scam.tips}</p>
                   </div>
                 </div>
               </div>

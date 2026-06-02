@@ -147,7 +147,7 @@ export default function OcrAnalyzer() {
             onClick={() => fileInputRef.current?.click()}
             className="border-2 border-dashed border-slate-300 dark:border-glass-border hover:border-cyber-green/50 rounded-xl p-12 text-center cursor-pointer transition-colors bg-slate-50 dark:bg-black/20 group duration-300"
           >
-            <Upload className="w-12 h-12 text-slate-400 dark:text-gray-500 group-hover:text-cyber-green mx-auto mb-4 transition-colors" />
+            <Upload className="w-12 h-12 text-slate-500 dark:text-gray-500 group-hover:text-cyber-green mx-auto mb-4 transition-colors" />
             <p className="text-slate-900 dark:text-white font-medium mb-1 transition-colors duration-300">Klik untuk mengunggah screenshot</p>
             <p className="text-sm text-slate-500 dark:text-gray-500 transition-colors duration-300">Pilih 1 hingga 5 gambar (Maks 5MB/gambar)</p>
           </div>
@@ -175,7 +175,7 @@ export default function OcrAnalyzer() {
                   onClick={() => fileInputRef.current?.click()}
                   className="rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-cyber-green/50 flex flex-col items-center justify-center cursor-pointer transition-colors aspect-[3/4] bg-slate-50 dark:bg-slate-800/30 group"
                 >
-                  <Upload className="w-6 h-6 text-slate-400 dark:text-slate-500 group-hover:text-cyber-green mb-2" />
+                  <Upload className="w-6 h-6 text-slate-500 dark:text-slate-500 group-hover:text-cyber-green mb-2" />
                   <span className="text-xs text-slate-500 dark:text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300">Tambah</span>
                 </div>
               )}
@@ -221,7 +221,7 @@ export default function OcrAnalyzer() {
           <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 px-2 transition-colors duration-300">
             <div className="w-1.5 h-1.5 rounded-full bg-cyber-green"></div>
             <span>{result.imageCount} screenshot dianalisis</span>
-            <span className="text-slate-400 dark:text-slate-600">•</span>
+            <span className="text-slate-500 dark:text-slate-600">•</span>
             <span>{result.details?.length || 0} indikator penipuan terdeteksi</span>
           </div>
           

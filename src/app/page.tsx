@@ -145,7 +145,7 @@ export default function Home() {
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
               <Link 
                 href="/dashboard"
-                className="px-8 py-4 rounded-xl bg-cyber-green text-white dark:text-cyber-dark font-bold text-lg hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] transition-all duration-300 flex items-center justify-center gap-2 group"
+                className="px-8 py-4 rounded-xl bg-cyber-green text-cyber-dark font-bold text-lg hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] transition-all duration-300 flex items-center justify-center gap-2 group"
               >
                 Mulai Analisis <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
               </Link>
@@ -391,7 +391,7 @@ export default function Home() {
         <p className="text-xl text-slate-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">Verifikasi sekarang sebelum Anda menjadi korban penipuan berikutnya.</p>
         <Link 
           href="/dashboard"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-cyber-green text-white dark:text-cyber-dark font-bold text-lg hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] transition-all"
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-cyber-green text-cyber-dark font-bold text-lg hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] transition-all"
         >
           Coba Gratis Sekarang <ArrowRight className="w-5 h-5" />
         </Link>

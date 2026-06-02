@@ -61,7 +61,7 @@ export default function ChatAnalyzer() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={6}
-              className="block w-full p-4 border border-slate-200 dark:border-glass-border rounded-xl bg-white dark:bg-black/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-green focus:border-transparent transition-all duration-300 resize-none"
+              className="block w-full p-4 border border-slate-200 dark:border-glass-border rounded-xl bg-white dark:bg-black/30 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyber-green focus:border-transparent transition-all duration-300 resize-none"
               placeholder="Paste teks pesan di sini... (Contoh: Selamat nomor Anda memenangkan undian Rp 100 juta. Klik link berikut untuk klaim hadiah!)"
             />
           </div>
