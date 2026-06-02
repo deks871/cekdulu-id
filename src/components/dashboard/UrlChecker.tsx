@@ -100,7 +100,7 @@ export default function UrlChecker() {
 
       {MAINTENANCE_MODE && (
         <div className="absolute inset-x-0 bottom-0 top-6 sm:top-0 z-20 flex flex-col items-center justify-center p-6 bg-black/40 backdrop-blur-sm rounded-2xl">
-          <div className="bg-[#0f172a]/90 dark:bg-black/60 border border-cyber-green/30 p-8 rounded-2xl shadow-[0_0_30px_rgba(0,230,92,0.15)] max-w-md mx-auto text-center backdrop-blur-md transform transition-all flex flex-col items-center">
+          <div className="bg-[#0f172a]/90 dark:bg-black/60 border border-cyber-green/30 p-8 rounded-2xl shadow-[0_0_30px_rgba(0,230,92,0.15)] max-w-md mx-auto text-center backdrop-blur-md flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-cyber-green/10 border border-cyber-green/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(0,230,92,0.3)]">
               <Lock className="w-8 h-8 text-cyber-green" />
             </div>

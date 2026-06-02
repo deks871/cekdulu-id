@@ -68,7 +68,7 @@ export default function Dashboard() {
             )}
             
             {activeTab === "url" && (
-              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.15 }}>
                 <UrlChecker />
               </motion.div>
             )}
