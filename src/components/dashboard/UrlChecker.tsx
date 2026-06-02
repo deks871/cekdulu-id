@@ -45,7 +45,7 @@ export default function UrlChecker() {
   };
 
   return (
-    <div className="relative -m-6 p-6 md:-m-8 md:p-8 h-full min-h-[400px] flex flex-col">
+    <div className="relative h-full min-h-[400px] flex flex-col">
       <div className={MAINTENANCE_MODE ? "opacity-20 blur-sm pointer-events-none select-none flex-grow transition-all duration-500" : "flex-grow"}>
         <div className="mb-6">
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 transition-colors duration-300">URL Checker</h3>
@@ -99,7 +99,7 @@ export default function UrlChecker() {
       </div>
 
       {MAINTENANCE_MODE && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-black/40 backdrop-blur-sm rounded-b-2xl sm:rounded-b-[2rem]">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 bg-black/40 backdrop-blur-sm rounded-2xl">
           <div className="bg-[#0f172a]/90 dark:bg-black/60 border border-cyber-green/30 p-8 rounded-2xl shadow-[0_0_30px_rgba(0,230,92,0.15)] max-w-md mx-auto text-center backdrop-blur-md transform transition-all flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-cyber-green/10 border border-cyber-green/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(0,230,92,0.3)]">
               <Lock className="w-8 h-8 text-cyber-green" />
