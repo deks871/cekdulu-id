@@ -45,7 +45,7 @@ export default function UrlChecker() {
   };
 
   return (
-    <div className="relative h-full min-h-[400px] flex flex-col">
+    <div className="h-full min-h-[400px] flex flex-col">
       <div className={MAINTENANCE_MODE ? "opacity-20 blur-sm pointer-events-none select-none flex-grow transition-all duration-500" : "flex-grow"}>
         <div className="mb-6">
           <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 transition-colors duration-300">URL Checker</h3>

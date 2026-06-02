@@ -60,7 +60,7 @@ export default function Dashboard() {
           </div>
 
           {/* Tab Content */}
-          <div className="p-6 md:p-8 min-h-[400px]">
+          <div className="relative p-6 md:p-8 min-h-[400px]">
             {activeTab === "chat" && (
               <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
                 <ChatAnalyzer />
