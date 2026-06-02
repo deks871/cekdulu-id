@@ -106,10 +106,10 @@ export default function UrlChecker() {
             </div>
             <h3 className="text-2xl font-bold text-white mb-3 tracking-wide">Peningkatan <span className="text-cyber-green">Sistem</span></h3>
             <p className="text-slate-200 dark:text-slate-300 text-sm leading-relaxed mb-4">
-              URL Analyzer sedang dalam tahap peningkatan akurasi dan validasi keamanan.
+              URL Analyzer sedang dalam peningkatan akurasi dan validasi keamanan.
             </p>
             <p className="text-slate-400 text-sm leading-relaxed">
-              Fitur ini untuk sementara tidak tersedia karena kami sedang meningkatkan akurasi dan validasi keamanan. Kami ingin memastikan setiap hasil analisis yang diberikan lebih akurat dan dapat dipercaya. Terima kasih atas pengertiannya.
+              Fitur ini untuk sementara tidak tersedia agar kami dapat memastikan hasil analisis yang lebih akurat dan dapat dipercaya.
             </p>
           </div>
         </div>
