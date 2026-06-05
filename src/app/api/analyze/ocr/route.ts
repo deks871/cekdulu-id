@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     console.log("OCR TEXT:", text);
     console.log("OCR ANALYSIS:", analysis);
 
-    return NextResponse.json({
+    const responseData: any = {
       success: true,
       text,
       score: analysis.score,
@@ -27,13 +27,18 @@ export async function POST(req: NextRequest) {
         ? "Ditemukan pola yang mencurigakan." 
         : "Tidak ditemukan pola penipuan yang jelas.",
       details: analysis.reasons,
-      debug: {
+    };
+
+    if (process.env.NODE_ENV === "development") {
+      responseData.debug = {
         textLength: analysis.textLength,
         normalizedText: analysis.normalizedText,
         categoryDetails: analysis.categoryDetails,
         combosBonuses: analysis.combosBonuses,
-      }
-    });
+      };
+    }
+
+    return NextResponse.json(responseData);
   } catch (err) {
     console.error(err);
 

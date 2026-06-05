@@ -254,7 +254,7 @@ export default function OcrAnalyzer() {
           )}
 
           {/* DEBUG PANEL */}
-          {result.debug && (
+          {process.env.NODE_ENV === "development" && result.debug && (
             <div className="border border-amber-200 dark:border-amber-900/50 rounded-xl overflow-hidden bg-amber-50 dark:bg-amber-900/10 mt-4 transition-all duration-300">
               <div className="px-5 py-3 border-b border-amber-200 dark:border-amber-900/50 bg-amber-100/50 dark:bg-amber-900/20 font-bold text-amber-800 dark:text-amber-500 text-sm">
                 🛠 Debug Panel: OCR Scoring Pipeline
