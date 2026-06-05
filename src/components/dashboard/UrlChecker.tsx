@@ -14,6 +14,7 @@ export default function UrlChecker() {
     urlDetails?: string[];
     contentDetails?: string[];
     isMock?: boolean;
+    extractedFeatures?: Record<string, any>;
   } | null>(null);
   const [error, setError] = useState("");
 
@@ -94,6 +95,7 @@ export default function UrlChecker() {
             urlDetails={result.urlDetails}
             contentDetails={result.contentDetails}
             isMock={result.isMock}
+            extractedFeatures={result.extractedFeatures}
           />
         )}
       </div>
@@ -104,12 +106,15 @@ export default function UrlChecker() {
             <div className="w-16 h-16 rounded-full bg-cyber-green/10 border border-cyber-green/20 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(0,230,92,0.3)]">
               <Lock className="w-8 h-8 text-cyber-green" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-3 tracking-wide">Peningkatan <span className="text-cyber-green">Sistem</span></h3>
+            <h3 className="text-2xl font-bold text-white mb-3 tracking-wide">System Maintenance</h3>
             <p className="text-slate-200 dark:text-slate-300 text-sm leading-relaxed mb-4">
-              URL Analyzer sedang dalam peningkatan akurasi dan validasi keamanan.
+              The URL Analyzer is currently undergoing accuracy improvements and security validation.
             </p>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Fitur ini untuk sementara tidak tersedia agar kami dapat memastikan hasil analisis yang lebih akurat dan dapat dipercaya.
+            <p className="text-slate-400 text-sm leading-relaxed mb-4">
+              This feature has been temporarily disabled while we complete testing and quality assurance to ensure more reliable analysis results.
+            </p>
+            <p className="text-cyber-green text-sm font-semibold">
+              Thank you for your patience.
             </p>
           </div>
         </div>

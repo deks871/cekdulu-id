@@ -135,11 +135,11 @@ export async function checkDomainAge(url: string): Promise<DomainAgeResult> {
     if (ageInDays < 7) {
       riskLevel = "high";
       riskScore = 40;
-      reason = `⚠️ Domain sangat baru (${ageLabel}). Domain yang baru dibuat < 7 hari sangat berisiko tinggi — ini pola umum website scam/phishing.`;
+      reason = `Domain sangat baru (${ageLabel}). Domain yang baru dibuat < 7 hari sangat berisiko tinggi — ini pola umum website scam/phishing.`;
     } else if (ageInDays < 30) {
       riskLevel = "medium";
       riskScore = 20;
-      reason = `⚠️ Domain baru dibuat (${ageLabel}). Domain berumur < 30 hari patut diwaspadai karena scammer sering membuat domain baru untuk menghindari blacklist.`;
+      reason = `Domain baru dibuat (${ageLabel}). Domain berumur < 30 hari patut diwaspadai karena scammer sering membuat domain baru untuk menghindari blacklist.`;
     } else if (ageInDays < 90) {
       riskLevel = "none";
       riskScore = 5;

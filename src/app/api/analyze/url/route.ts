@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkDomainAge } from "@/lib/domainAge";
 import { analyzeUrl } from "@/lib/urlAnalyzer";
 import { analyzeContent } from "@/lib/contentAnalyzer";
+import { fetchDiagnostic } from "@/lib/fetchDiagnostic";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -163,14 +164,14 @@ export async function POST(req: NextRequest) {
 
     if (gsbFlagged === true) {
       // Google confirmed threat → immediate high-risk classification
-      const score = Math.floor(Math.random() * 6) + 95; // 95–100
+      const score = 100;
       const details = [
-        "⚠️ URL ini terdeteksi berbahaya oleh Google Safe Browsing",
-        "Terdaftar sebagai situs phishing, malware, atau penipuan",
+        "URL ini terdeteksi berbahaya oleh Google Safe Browsing",
+        "Tautan telah dilaporkan dan diverifikasi sebagai situs penipuan, malware, atau phishing.",
       ];
       if (wasShortlink) {
         details.unshift(
-          `🔗 Shortlink mengarah ke: ${resolvedUrl}`
+          `Shortlink mengarah ke: ${resolvedUrl}`
         );
       }
       return NextResponse.json({
@@ -185,50 +186,62 @@ export async function POST(req: NextRequest) {
     // ── 2. GSB returned null (no key / API error) → heuristic fallback ─────
     // ── 3. GSB returned false (clean) → still run heuristic for detail ──────
     const heuristic = analyzeUrlHeuristic(resolvedUrl);
+    const baseUrlScore = heuristic.score;
+    
+    let domainAgeScore = 0;
     // Domain Age Detection
     try {
       const domainAge = await checkDomainAge(resolvedUrl);
 
       if (domainAge.riskScore > 0) {
-        heuristic.score += domainAge.riskScore;
+        domainAgeScore = domainAge.riskScore;
         heuristic.details.push(domainAge.reason);
       } else {
-        heuristic.details.push(`✅ ${domainAge.reason}`);
+        heuristic.details.push(domainAge.reason);
       }
-
-      heuristic.score = Math.min(100, heuristic.score);
     } catch (error) {
       console.error("Domain age check failed:", error);
     }
 
-
     // Fetch and analyze content
     let urlDetails = [...heuristic.details];
     let contentDetails: string[] = [];
-    let finalScore = heuristic.score;
+    let contentScore = 0;
+    let uncertaintyPenalty = 0;
+
+    let fetchDiagnosticsData = null;
 
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
-      const htmlRes = await fetch(resolvedUrl, { 
-         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
-         signal: controller.signal 
-      });
-      clearTimeout(timeout);
+      const diagnostics = await fetchDiagnostic(resolvedUrl);
+      fetchDiagnosticsData = diagnostics;
       
-      if (htmlRes.ok) {
-        const html = await htmlRes.text();
-        const contentAnalysis = analyzeContent(html);
+      // If we got HTML (even if status was FAILED like 403, we might still have useful HTML to analyze)
+      if (diagnostics.html) {
+        const contentAnalysis = analyzeContent(diagnostics.html);
         contentDetails = contentAnalysis.reasons;
-        
-        // Weighting: URL 40%, Content 60%
-        finalScore = Math.round((heuristic.score * 0.4) + (contentAnalysis.score * 0.6));
-      } else {
-        contentDetails.push("Konten website tidak dapat dianalisis, hasil berdasarkan analisis URL.");
+        contentScore = contentAnalysis.score;
       }
-    } catch (e) {
-      contentDetails.push("Konten website tidak dapat dianalisis, hasil berdasarkan analisis URL.");
+      
+      // Handle SSL Error Risk Signal
+      if (diagnostics.hasSslError) {
+         uncertaintyPenalty += 15;
+         contentDetails.push(`Masalah Keamanan Koneksi: Situs menggunakan sertifikat SSL/TLS yang tidak valid atau kadaluarsa (${diagnostics.sslErrorDetails}). Penjahat siber sering menggunakan sertifikat gratis atau salah konfigurasi.`);
+      }
+
+      // If it completely failed and we got no HTML
+      if (diagnostics.status !== "SUCCESS" && !diagnostics.html) {
+        uncertaintyPenalty += 25;
+        contentDetails.push(`Sistem tidak dapat memverifikasi isi halaman ini secara langsung (${diagnostics.failureReason}). Kami menerapkan penalti ketidakpastian karena situs memblokir akses atau tidak aktif.`);
+      }
+      
+    } catch (e: any) {
+      uncertaintyPenalty += 25;
+      contentDetails.push(`Sistem gagal melakukan koneksi ke halaman ini (Error internal). Kami menerapkan penalti ketidakpastian.`);
     }
+    
+    // V1 Scoring Strategy: Final Score = max(URL Score, Content Score) + Supporting Signals
+    const maxMajorRisk = Math.max(baseUrlScore, contentScore);
+    let finalScore = Math.min(100, maxMajorRisk + domainAgeScore + uncertaintyPenalty);
 
     let label = "RELATIF AMAN";
     let riskLevel = "Rendah";
@@ -243,17 +256,21 @@ export async function POST(req: NextRequest) {
       riskLevel, 
       urlDetails, 
       contentDetails,
-      details: urlDetails.concat(contentDetails)
+      details: urlDetails.concat(contentDetails),
+      extractedFeatures: {
+        ...(heuristic.extractedFeatures || {}),
+        fetchDiagnostics: fetchDiagnosticsData
+      }
     };
 
     if (wasShortlink) {
-      result.urlDetails!.unshift(`🔗 Shortlink mengarah ke: ${resolvedUrl}`);
-      result.details.unshift(`🔗 Shortlink mengarah ke: ${resolvedUrl}`);
+      result.urlDetails!.unshift(`Sistem telah membuka penyingkat URL (${rawUrl}) dan menganalisis tujuan akhir: ${resolvedUrl}`);
+      result.details.unshift(`Sistem telah membuka penyingkat URL (${rawUrl}) dan menganalisis tujuan akhir: ${resolvedUrl}`);
     }
 
     if (gsbFlagged === false) {
-      result.urlDetails!.push("✅ Tidak ditemukan ancaman di Google Safe Browsing");
-      result.details.push("✅ Tidak ditemukan ancaman di Google Safe Browsing");
+      result.urlDetails!.push("Tidak ditemukan ancaman di Google Safe Browsing");
+      result.details.push("Tidak ditemukan ancaman di Google Safe Browsing");
       result.source = "heuristic+content+google_safe_browsing";
     }
 

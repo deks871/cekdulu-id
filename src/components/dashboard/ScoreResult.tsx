@@ -10,9 +10,10 @@ interface ScoreResultProps {
   urlDetails?: string[];
   contentDetails?: string[];
   isMock?: boolean;
+  extractedFeatures?: Record<string, any>;
 }
 
-export default function ScoreResult({ score, category, analysis, details, urlDetails, contentDetails, isMock }: ScoreResultProps) {
+export default function ScoreResult({ score, category, analysis, details, urlDetails, contentDetails, isMock, extractedFeatures }: ScoreResultProps) {
   const isSafe = score <= 30;
   const isWarning = score > 30 && score <= 70;
   const isDanger = score > 70;
@@ -131,6 +132,19 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
                 {analysis || "Tidak ada detail spesifik yang ditemukan."}
               </div>
             )}
+          </div>
+        )}
+
+        {extractedFeatures && process.env.NODE_ENV === 'development' && (
+          <div className="mb-6">
+            <details className="bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
+              <summary className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-300 flex items-center gap-2">
+                <Info className="w-4 h-4" /> Data Debugging (Extracted Features)
+              </summary>
+              <div className="p-4 border-t border-slate-200 dark:border-slate-700/50 text-xs font-mono text-slate-600 dark:text-slate-400 overflow-x-auto whitespace-pre-wrap">
+                {JSON.stringify(extractedFeatures, null, 2)}
+              </div>
+            </details>
           </div>
         )}
 

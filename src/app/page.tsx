@@ -15,6 +15,7 @@ import {
   MapPin,
   ChevronRight,
   ShieldAlert,
+  AlertTriangle,
   ReceiptText,
   Link2,
   BrainCircuit
@@ -83,7 +84,7 @@ const PhoneMockup = ({
              <ul className={`text-xs space-y-3 font-medium ${listClasses}`}>
                {issues.map((issue: string, i: number) => (
                  <li key={i} className="flex items-start gap-2.5">
-                   <span className="mt-0.5 text-[10px]">⚠️</span>
+                   <AlertTriangle className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${textClasses}`} />
                    <span className="leading-snug">{issue}</span>
                  </li>
                ))}

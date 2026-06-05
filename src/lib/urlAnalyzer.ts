@@ -3,11 +3,14 @@ export interface UrlFeatures {
   domain: string;
   tld: string;
   urlLength: number;
+  pathLength: number;
+  queryParametersCount: number;
   subdomainCount: number;
   isIpAddress: boolean;
   isGovernmentDomain: boolean;
   hasSuspiciousChars: boolean;
   isShortener: boolean;
+  isPunycode: boolean;
 }
 
 export interface UrlAnalysisResult {
@@ -22,8 +25,8 @@ const SHORTLINK_DOMAINS = new Set([
   "tiny.cc", "rb.gy", "cutt.ly", "shorturl.at", "s.id", "link.id", "lynk.id",
 ]);
 
-const SUSPICIOUS_TLDS = [
-  ".xyz", ".top", ".click", ".site", ".online", ".loan", ".work",
+const LOW_COST_TLDS = [
+  ".my.id", ".biz.id", ".xyz", ".top", ".click", ".site", ".online", ".loan", ".work",
   ".gq", ".ml", ".cf", ".tk", ".ga", ".vip", ".pw", ".icu", ".cc"
 ];
 
@@ -68,8 +71,8 @@ export function analyzeUrl(rawUrl: string): UrlAnalysisResult {
       riskLevel: "Kritis",
       reasons: ["URL tidak valid atau tidak dapat diurai. Tautan ini kemungkinan besar rusak atau berbahaya."],
       extractedFeatures: {
-        protocol: "", domain: "", tld: "", urlLength: rawUrl.length, subdomainCount: 0,
-        isIpAddress: false, isGovernmentDomain: false, hasSuspiciousChars: false, isShortener: false
+        protocol: "", domain: "", tld: "", urlLength: rawUrl.length, pathLength: 0, queryParametersCount: 0, subdomainCount: 0,
+        isIpAddress: false, isGovernmentDomain: false, hasSuspiciousChars: false, isShortener: false, isPunycode: false
       }
     };
   }
@@ -78,6 +81,8 @@ export function analyzeUrl(rawUrl: string): UrlAnalysisResult {
   const protocol = parsedUrl.protocol.replace(":", "").toUpperCase();
   const fullUrl = rawUrl.toLowerCase();
   const urlLength = rawUrl.length;
+  const pathLength = parsedUrl.pathname.length;
+  const queryParametersCount = Array.from(parsedUrl.searchParams.keys()).length;
 
   const parts = hostname.split(".");
   const tld = parts.length > 1 ? "." + parts[parts.length - 1] : "";
@@ -93,16 +98,21 @@ export function analyzeUrl(rawUrl: string): UrlAnalysisResult {
   // Detect multiple hyphens, underscores, or weird characters in domain
   const hasSuspiciousChars = /[-_]{2,}|[@\^]/.test(hostname);
 
+  const isPunycode = hostname.includes("xn--");
+
   const features: UrlFeatures = {
     protocol,
     domain: hostname,
     tld,
     urlLength,
+    pathLength,
+    queryParametersCount,
     subdomainCount,
     isIpAddress,
     isGovernmentDomain,
     hasSuspiciousChars,
-    isShortener
+    isShortener,
+    isPunycode
   };
 
   // Immediate Trusted Domain Check
@@ -110,7 +120,7 @@ export function analyzeUrl(rawUrl: string): UrlAnalysisResult {
     return {
       score: 0,
       riskLevel: "Rendah",
-      reasons: ["Domain termasuk dalam daftar situs terpercaya dan resmi."],
+      reasons: ["Domain resmi terpercaya: Tautan ini milik layanan atau perusahaan besar yang sudah diverifikasi aman."],
       extractedFeatures: features
     };
   }
@@ -118,69 +128,99 @@ export function analyzeUrl(rawUrl: string): UrlAnalysisResult {
   // 1. IP Address
   if (isIpAddress) {
     score += 50;
-    reasons.push("URL menggunakan alamat IP langsung alih-alih nama domain yang valid. Ini adalah indikator kuat situs yang sengaja menyembunyikan identitasnya.");
+    reasons.push("IP Address terdeteksi: Menggunakan alamat IP (misal: 192.168.x.x) alih-alih nama domain. Situs sah umumnya menggunakan nama domain untuk memudahkan pengguna, sedangkan penipu sering memakai IP untuk menyembunyikan jejak peladen (server) mereka.");
   }
 
   // 2. Protocol
   if (protocol === "HTTP" && !isIpAddress) {
     score += 15;
-    reasons.push("Koneksi tidak aman (HTTP). Data yang Anda masukkan (seperti kata sandi) dapat dicegat oleh pihak lain.");
+    reasons.push("Protokol tidak aman (HTTP): Koneksi ke situs ini tidak dienkripsi. Informasi sensitif seperti kata sandi atau data kartu kredit dapat dengan mudah disadap oleh pihak ketiga.");
   }
 
   // 3. Subdomains
   if (subdomainCount >= 3) {
     score += 25;
-    reasons.push(`Domain menggunakan terlalu banyak subdomain (${subdomainCount}). Penipu sering menggunakan banyak subdomain gratis untuk mengelabui pengguna.`);
+    reasons.push(`Jumlah Subdomain mencurigakan (${subdomainCount}): Menggunakan terlalu banyak subdomain (contoh: a.b.c.domain.com). Penipu sering membonceng layanan hosting gratis dengan membuat subdomain bertingkat untuk menyembunyikan identitas domain utama.`);
   } else if (subdomainCount === 2) {
     score += 10;
-    reasons.push("Domain menggunakan banyak subdomain, yang sedikit mencurigakan jika bukan dari situs resmi.");
+    reasons.push(`Subdomain berlapis (${subdomainCount}): Menggunakan lebih dari satu subdomain. Meskipun tidak selalu berbahaya, ini merupakan pola yang sering ditemukan pada tautan tiruan.`);
   }
 
   // 4. URL Length
   if (urlLength > 100) {
     score += 10;
-    reasons.push("Panjang URL sangat mencurigakan (lebih dari 100 karakter). Tautan penipuan sering kali panjang untuk menyembunyikan parameter berbahaya.");
+    reasons.push(`URL terlalu panjang (${urlLength} karakter): Tautan yang sangat panjang sering kali disengaja untuk menyembunyikan nama domain asli yang berbahaya agar tidak terlihat sepenuhnya di layar Anda.`);
   }
 
   // 5. Shorteners
   if (isShortener) {
     score += 25;
-    reasons.push("Tautan menggunakan layanan penyingkat URL. Penipu sering menggunakannya untuk menyembunyikan tujuan asli tautan yang berbahaya.");
+    reasons.push("Penyingkat URL (URL Shortener): Menggunakan layanan penyingkat tautan (seperti bit.ly atau s.id). Layanan semacam ini sangat sering disalahgunakan oleh penjahat siber untuk menutupi tujuan akhir dari tautan phishing.");
   }
 
-  // 6. Suspicious TLDs
-  if (SUSPICIOUS_TLDS.some(t => hostname.endsWith(t))) {
-    score += 35;
-    reasons.push(`Tautan menggunakan ekstensi domain murah atau gratis (${tld}) yang sangat sering disalahgunakan oleh jaringan penipuan dan phishing.`);
+  // 6. Low Cost TLDs
+  if (LOW_COST_TLDS.some(t => hostname.endsWith(t))) {
+    score += 10;
+    reasons.push(`Ekstensi Domain Murah (${tld}): Domain ini menggunakan ekstensi yang murah atau gratis. Ekstensi ini sering digunakan penipu, namun bukan indikator pasti tanpa bukti tambahan.`);
+    
+    // Combine with suspicious subdomains
+    if (subdomainCount > 0) {
+      // Hyphenated subdomains
+      const hasHyphenatedSubdomain = hostname.split('.').slice(0, -2).some(p => p.includes('-'));
+      if (hasHyphenatedSubdomain) {
+        score += 20;
+        reasons.push(`Pola Subdomain Mencurigakan: Terdapat subdomain dengan tanda hubung pada domain murah. Kombinasi ini sangat sering ditemui pada situs phishing (contoh: daftar-sekarang.domain.my.id).`);
+      }
+      
+      const suspiciousSubdomainKeywords = ["daftar", "cek", "bantuan", "subsidi", "kuota", "hadiah", "undian", "promo", "klaim", "gratis"];
+      const hasSuspiciousSubdomainKeyword = hostname.split('.').slice(0, -2).some(p => suspiciousSubdomainKeywords.some(kw => p.includes(kw)));
+      
+      if (hasSuspiciousSubdomainKeyword) {
+         score += 25;
+         reasons.push(`Subdomain Mengandung Kata Kunci Penipuan: Nama subdomain menggunakan kata pemancing (seperti 'daftar', 'subsidi', 'hadiah') di atas domain murah. Ini adalah taktik phishing yang sangat kuat.`);
+      }
+    }
   }
 
   // 7. Suspicious Characters
   if (hasSuspiciousChars) {
     score += 15;
-    reasons.push("Domain mengandung pola karakter aneh atau simbol berlebihan, yang sering digunakan untuk menghindari pendeteksian keamanan.");
+    reasons.push("Karakter tidak wajar pada domain: Terdapat simbol-simbol aneh (seperti tanda hubung ganda atau karakter khusus) pada nama domain. Ini taktik yang umum dipakai untuk menghindari filter keamanan otomatis.");
   }
 
   // 8. Government Impersonation
   const hasGovKeywords = hostname.includes("pemerintah") || hostname.includes("kominfo") || hostname.includes("kemen");
   if (!isGovernmentDomain && hasGovKeywords) {
      score += 45;
-     reasons.push("Sangat mencurigakan: URL ini mencoba meniru lembaga pemerintah Indonesia tetapi TIDAK menggunakan ekstensi resmi '.go.id'. Ini adalah taktik penipuan umum.");
+     reasons.push("Indikasi Peniruan Identitas Pemerintah: URL ini mengandung kata yang terkait dengan pemerintah Indonesia, namun TIDAK menggunakan domain resmi '.go.id' atau '.gov'. Ini adalah metode penipuan (phishing) klasik untuk mencuri data warga.");
   } else if (isGovernmentDomain) {
      score = 0; 
-     reasons.push("URL menggunakan domain resmi pemerintah Indonesia (.go.id). Ini merupakan situs terpercaya.");
+     reasons.push("Domain Resmi Pemerintah: Menggunakan ekstensi '.go.id' yang terverifikasi khusus dan diatur secara ketat untuk instansi pemerintahan di Indonesia. Domain ini sangat terpercaya.");
      return { score, riskLevel: "Rendah", reasons, extractedFeatures: features };
+  }
+
+  // Punycode
+  if (isPunycode) {
+    score += 40;
+    reasons.push("Taktik Punycode terdeteksi ('xn--'): Tautan ini mencoba mengecoh mata Anda dengan menggunakan karakter bahasa asing yang bentuknya mirip alfabet biasa. Ini adalah indikasi kuat serangan phishing tingkat lanjut yang disengaja.");
+  }
+
+  // Query Parameters
+  if (queryParametersCount > 4) {
+    score += 10;
+    reasons.push(`Terlalu banyak parameter kueri (${queryParametersCount}): Tautan ini membawa banyak sekali data tambahan di bagian akhir. Walau kadang digunakan secara sah, jumlah yang berlebihan sering dipakai penipu untuk membawa skrip berbahaya atau data identitas korban.`);
   }
 
   // 9. Financial Assistance
   if (FINANCIAL_SCAM_KEYWORDS.some(kw => fullUrl.includes(kw))) {
     score += 30;
-    reasons.push("Menawarkan bantuan keuangan, bansos, atau uang. Topik ini adalah modus penipuan utama di Indonesia.");
+    reasons.push("Kata Kunci Penipuan Finansial: Tautan URL secara gamblang mengandung janji pencairan 'bantuan', 'dana', atau subsidi. Mengingat tren saat ini, topik tersebut digunakan oleh lebih dari 80% serangan rekayasa sosial di Indonesia untuk mengelabui korban.");
   }
 
   // 10. Reward/Gift Scams
   if (REWARD_SCAM_KEYWORDS.some(kw => fullUrl.includes(kw))) {
     score += 35;
-    reasons.push("Menawarkan hadiah, bonus, atau undian. Ini adalah ciri khas penipuan ('Phishing') yang dirancang untuk mencuri data pribadi Anda.");
+    reasons.push("Kata Kunci Undian/Hadiah: Tautan mengandung kata menjanjikan 'hadiah' atau undian. Taktik manipulasi psikologis ini dirancang agar Anda terburu-buru memberikan data pribadi atau mentransfer sejumlah uang pajak fiktif.");
   }
 
   // 11. Brand Mimicking (Typosquatting)
@@ -198,7 +238,7 @@ export function analyzeUrl(rawUrl: string): UrlAnalysisResult {
     
     if (normalizedHost.includes(brand) && !isLegitBrand && !brandMimickingFound) {
       score += 40;
-      reasons.push(`Terdeteksi peniruan identitas merek populer (${brand.toUpperCase()}). Penipu sengaja membuat nama domain mirip dengan yang asli untuk mengelabui Anda.`);
+      reasons.push(`Peniruan Merek Terdeteksi (${brand.toUpperCase()}): Nama domain sengaja dipelesetkan (typosquatting) agar menyerupai merek asli yang populer. Contoh umum adalah mengubah 'o' menjadi angka '0' atau menambah imbuhan kata tertentu untuk menipu mata.`);
       brandMimickingFound = true;
     }
   }
@@ -222,7 +262,7 @@ export function analyzeUrl(rawUrl: string): UrlAnalysisResult {
   }
 
   if (reasons.length === 0) {
-    reasons.push("Tidak ada indikator mencurigakan yang ditemukan secara langsung pada struktur URL.");
+    reasons.push("Tidak ada indikator mencurigakan yang ditemukan secara langsung pada struktur URL. Meski begitu, tetap berhati-hati jika tautan meminta data pribadi.");
   }
 
   return {
