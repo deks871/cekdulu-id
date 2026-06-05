@@ -17,6 +17,7 @@ export type RiskLabel =
 export interface CategoryResult {
   detected: boolean;
   matchedPatterns: string[]; // label dari pattern yang cocok
+  failedPatterns?: string[]; // label dari pattern yang gagal
   rawScore: number;          // skor mentah sebelum di-cap
   cappedScore: number;       // skor setelah di-cap dengan maxScore
 }
@@ -29,6 +30,7 @@ export interface AnalysisResult {
   categoryDetails: Record<ScamCategory, CategoryResult>; // detail per kategori
   combosBonuses: Array<{ id: string; reason: string; bonus: number }>; // bonus combo
   textLength: number;                              // panjang teks yang dianalisis
+  normalizedText?: string;                         // teks setelah dinormalisasi
 }
 
 // ---------------------------------------------------------------------------
@@ -125,6 +127,7 @@ export function analyzeScam(rawText: string): AnalysisResult {
     (typeof SCAM_CATEGORIES)[ScamCategory],
   ][]) {
     const matchedPatterns: string[] = [];
+    const failedPatterns: string[] = [];
     let rawScore = 0;
 
     for (const { pattern, label, score } of config.patterns) {
@@ -136,6 +139,8 @@ export function analyzeScam(rawText: string): AnalysisResult {
         matchedPatterns.push(label);
         // Hanya hitung skor untuk match pertama; match tambahan memberi 50% bonus
         rawScore += score + (matchCount - 1) * (score * 0.5);
+      } else {
+        failedPatterns.push(label + " (regex: " + pattern.toString() + ")");
       }
     }
 
@@ -149,6 +154,7 @@ export function analyzeScam(rawText: string): AnalysisResult {
     categoryDetails[categoryKey] = {
       detected: matchedPatterns.length > 0,
       matchedPatterns,
+      failedPatterns,
       rawScore: Math.round(rawScore),
       cappedScore,
     };
@@ -217,6 +223,7 @@ export function analyzeScam(rawText: string): AnalysisResult {
     categoryDetails,
     combosBonuses,
     textLength,
+    normalizedText: text,
   };
 }
 
@@ -274,6 +281,7 @@ function buildEmptyResult(rawText: string): AnalysisResult {
   const emptyCategory: CategoryResult = {
     detected: false,
     matchedPatterns: [],
+    failedPatterns: [],
     rawScore: 0,
     cappedScore: 0,
   };
@@ -291,9 +299,16 @@ function buildEmptyResult(rawText: string): AnalysisResult {
       otp: { ...emptyCategory },
       financial: { ...emptyCategory },
       malware: { ...emptyCategory },
+      identity_claim: { ...emptyCategory },
+      unsolicited_contact: { ...emptyCategory },
+      verification_request: { ...emptyCategory },
+      information_gathering: { ...emptyCategory },
+      social_engineering: { ...emptyCategory },
+      family_context: { ...emptyCategory },
     },
     combosBonuses: [],
     textLength: rawText.trim().length,
+    normalizedText: normalizeText(rawText),
   };
 }
 

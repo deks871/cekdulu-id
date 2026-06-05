@@ -5,7 +5,13 @@ export type ScamCategory =
   | "giveaway"
   | "otp"
   | "financial"
-  | "malware";
+  | "malware"
+  | "identity_claim"
+  | "unsolicited_contact"
+  | "verification_request"
+  | "information_gathering"
+  | "social_engineering"
+  | "family_context";
 
 export interface ScamPattern {
   pattern: RegExp;
@@ -79,6 +85,30 @@ export const COMBO_RULES: ComboRule[] = [
     categories: ["malware", "impersonation", "action"],
     bonusScore: 35,
     reason: "Pola APK phishing berkedok instansi resmi",
+  },
+  {
+    id: "se_combo_a_identity_info",
+    categories: ["identity_claim", "information_gathering"],
+    bonusScore: 10,
+    reason: "Pelaku mengklaim identitas tertentu sambil berusaha memperoleh informasi secara tidak langsung.",
+  },
+  {
+    id: "se_combo_b_identity_family",
+    categories: ["identity_claim", "family_context"],
+    bonusScore: 10,
+    reason: "Narasi keluarga digunakan untuk membangun kepercayaan dan legitimasi seolah-olah mewakili kerabat.",
+  },
+  {
+    id: "se_combo_c_structured_se",
+    categories: ["identity_claim", "information_gathering", "social_engineering"],
+    bonusScore: 20,
+    reason: "Terdapat pola rekayasa sosial terstruktur yang menggabungkan klaim identitas, pengumpulan informasi, dan taktik pembangunan kepercayaan.",
+  },
+  {
+    id: "se_combo_d_unsolicited_structured_se",
+    categories: ["unsolicited_contact", "identity_claim", "information_gathering", "social_engineering"],
+    bonusScore: 25,
+    reason: "Kontak tidak diminta yang menggabungkan klaim identitas dan pengumpulan informasi. Ini merupakan pola klasikal yang sangat umum ditemukan pada penipuan berbasis rekayasa sosial.",
   },
   {
     id: "full_combo",
@@ -442,4 +472,169 @@ export const SCAM_CATEGORIES: Record<ScamCategory, CategoryConfig> = {
       },
     ],
   },
-}
+
+  // -------------------------------------------------------------------------
+  // IDENTITY CLAIM — Klaim mewakili individu, instansi, atau kerabat
+  // -------------------------------------------------------------------------
+  identity_claim: {
+    baseScore: 2,
+    maxScore: 15,
+    patterns: [
+      {
+        pattern: /\b(saya\s*dari\s*(kepolisian|kantor|instansi|bank|perusahaan)|mewakili\s*pihak)\b/gi,
+        label: "Pesan mengandung klaim afiliasi dengan instansi, perusahaan, atau organisasi resmi.",
+        score: 5,
+      },
+      {
+        pattern: /\b((pihak\s*)?perwakilan|mewakili|atas\s*nama|kuasa\s*dari|delegasi\s*dari|penghubung\s*keluarga|perantara\s*keluarga)\b/gi,
+        label: "Pengirim mengaku sebagai perwakilan, kuasa, atau pihak ketiga yang menghubungkan korban.",
+        score: 6,
+      },
+      {
+        pattern: /\b(selaku\s*pihak|kami\s*selaku)\b/gi,
+        label: "Penggunaan struktur kalimat formal untuk menegaskan klaim identitas profesional.",
+        score: 4,
+      },
+      {
+        pattern: /\b(ini\s*dengan\s*bapak|ibu\s*[a-zA-Z]+|mengenai\s*(tagihan|dokumen|paket)\s*atas\s*nama)\b/gi,
+        label: "Penggunaan informasi spesifik (nama atau layanan) untuk membangun kredibilitas palsu.",
+        score: 5,
+      },
+      {
+        pattern: /\b(petugas|kurir|agen|staf\s*administrasi)\b/gi,
+        label: "Klaim profesi layanan masyarakat atau administratif untuk meminta kepatuhan.",
+        score: 3,
+      },
+    ],
+  },
+
+  // -------------------------------------------------------------------------
+  // FAMILY CONTEXT — Narasi keluarga dan kerabat
+  // -------------------------------------------------------------------------
+  family_context: {
+    baseScore: 5,
+    maxScore: 15,
+    patterns: [
+      {
+        pattern: /\b(keluarga|saudara|orang\s*tua|anak|kerabat|sanak\s*keluarga|kepentingan\s*keluarga|atas\s*nama\s*keluarga)\b/gi,
+        label: "Penggunaan narasi kekeluargaan atau kerabat untuk membangun kedekatan dan kepercayaan.",
+        score: 5,
+      },
+      {
+        pattern: /\b(di\s*luar\s*negeri|sedang\s*sakit|kecelakaan)\b/gi,
+        label: "Penyebutan kondisi darurat atau situasi jarak jauh yang sering dipakai dalam rekayasa sosial.",
+        score: 8,
+      },
+    ],
+  },
+
+  // -------------------------------------------------------------------------
+  // UNSOLICITED CONTACT — Kontak tak terduga dan upaya membangun kepercayaan
+  // -------------------------------------------------------------------------
+  unsolicited_contact: {
+    baseScore: 2,
+    maxScore: 10,
+    patterns: [
+      {
+        pattern: /\b(maaf\s*mengganggu\s*waktunya|apa\s*benar\s*ini\s*dengan|boleh\s*minta\s*waktunya)\b/gi,
+        label: "Pola sapaan kontak yang tidak diinisiasi oleh korban (unsolicited).",
+        score: 5,
+      },
+      {
+        pattern: /\b(dapat\s*nomor\s*ini\s*dari|nomor\s*anda\s*terdaftar\s*di)\b/gi,
+        label: "Pemberian narasi pihak ketiga sebagai justifikasi untuk menghubungi korban secara tiba-tiba.",
+        score: 5,
+      },
+      {
+        pattern: /\b(salam\s*kenal|ingin\s*menawarkan\s*kerja\s*sama|hanya\s*ingin\s*bertanya)\b/gi,
+        label: "Upaya sapaan awal untuk mencairkan suasana dan membangun kepercayaan dasar.",
+        score: 3,
+      },
+    ],
+  },
+
+  // -------------------------------------------------------------------------
+  // VERIFICATION REQUEST — Permintaan konfirmasi, verifikasi, atau status
+  // -------------------------------------------------------------------------
+  verification_request: {
+    baseScore: 2,
+    maxScore: 10,
+    patterns: [
+      {
+        pattern: /\b(mohon\s*(konfirmasi|verifikasi)|ingin\s*memastikan|apakah\s*benar|cek\s*status|klarifikasi)\b/gi,
+        label: "Permintaan eksplisit untuk melakukan konfirmasi, verifikasi, atau klarifikasi.",
+        score: 3,
+      },
+      {
+        pattern: /\b(tindak\s*lanjut|follow\s*up|pengecekan\s*data|update\s*data)\b/gi,
+        label: "Penggunaan istilah tindak lanjut atau pengecekan administratif.",
+        score: 3,
+      },
+      {
+        pattern: /\b(dokumen|berkas|laporan|aplikasi)\s*(anda|bapak|ibu)\b/gi,
+        label: "Penyebutan status dokumen, laporan, atau aplikasi milik korban.",
+        score: 3,
+      },
+    ],
+  },
+
+  // -------------------------------------------------------------------------
+  // INFORMATION GATHERING — Percobaan mengambil informasi pribadi/administratif
+  // -------------------------------------------------------------------------
+  information_gathering: {
+    baseScore: 2,
+    maxScore: 15,
+    patterns: [
+      {
+        pattern: /\b(minta\s*(data\s*diri|identitas|alamat|nomor|foto|ktp|kk))\b/gi,
+        label: "Permintaan data pribadi dan identitas dasar secara langsung.",
+        score: 5,
+      },
+      {
+        pattern: /\b(bisa\s*dibantu\s*(sebutkan|informasikan)|mohon\s*infokan|mohon\s*dibantu\s*informasinya)\b/gi,
+        label: "Penggunaan gaya bahasa sopan untuk memanipulasi korban agar membagikan informasi.",
+        score: 5,
+      },
+      {
+        pattern: /\b(nama\s*ibu\s*kandung|tanggal\s*lahir|tempat\s*lahir|nik|asal\/?kota|negara|no\s*id|pmi)\b/gi,
+        label: "Pesan meminta atau merujuk pada data profil sensitif yang dapat dipakai untuk pencurian identitas.",
+        score: 8,
+      },
+    ],
+  },
+
+  // -------------------------------------------------------------------------
+  // SOCIAL ENGINEERING — Indikator manipulasi, otoritas, dan kepatuhan
+  // -------------------------------------------------------------------------
+  social_engineering: {
+    baseScore: 2,
+    maxScore: 15,
+    patterns: [
+      {
+        pattern: /\b(karena\s*aturan|sesuai\s*prosedur|kebijakan\s*baru|wajib\s*dilakukan)\b/gi,
+        label: "Taktik persuasi berbasis otoritas yang menekankan prosedur atau kepatuhan wajib.",
+        score: 5,
+      },
+      {
+        pattern: /\b(tolong\s*bantuannya|kasihan|mohon\s*pengertiannya|kondisi\s*darurat)\b/gi,
+        label: "Eksploitasi empati atau manipulasi emosional untuk mempercepat respon korban.",
+        score: 5,
+      },
+      {
+        pattern: /\b(jika\s*tidak\s*keberatan|demi\s*(keamanan|kenyamanan)\s*anda)\b/gi,
+        label: "Penciptaan legitimasi palsu seolah-olah tindakan tersebut menguntungkan korban.",
+        score: 5,
+      },
+      {
+        pattern: /\b(sangat\s*rahasia|jangan\s*beritahu\s*siapa\s*pun|antara\s*kita\s*saja)\b/gi,
+        label: "Permintaan kerahasiaan mencurigakan untuk mengisolasi korban.",
+        score: 8,
+      },
+      {
+        pattern: /\b((sebagai|menjadi)\s*perantara|perwakilan\s*keluarga|pengajuan\s*berkas|kepentingan\s*keluarga)\b/gi,
+        label: "Penggunaan narasi representasi atau pengurusan berkas untuk menyamarkan niat ekstraksi data.",
+        score: 6,
+      },
+    ],
+  },
+};

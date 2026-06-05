@@ -252,6 +252,74 @@ export default function OcrAnalyzer() {
               )}
             </div>
           )}
+
+          {/* DEBUG PANEL */}
+          {result.debug && (
+            <div className="border border-amber-200 dark:border-amber-900/50 rounded-xl overflow-hidden bg-amber-50 dark:bg-amber-900/10 mt-4 transition-all duration-300">
+              <div className="px-5 py-3 border-b border-amber-200 dark:border-amber-900/50 bg-amber-100/50 dark:bg-amber-900/20 font-bold text-amber-800 dark:text-amber-500 text-sm">
+                🛠 Debug Panel: OCR Scoring Pipeline
+              </div>
+              <div className="p-5 space-y-4 text-xs font-mono text-slate-700 dark:text-slate-300">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-amber-600 dark:text-amber-500 font-bold mb-1">Extracted Stats</div>
+                    <div>Characters: {result.debug.textLength}</div>
+                    <div>Raw Text (head): {extractedText.substring(0, 100)}...</div>
+                    <div className="mt-2 text-amber-600 dark:text-amber-500 font-bold mb-1">Normalized Text (passed to regex)</div>
+                    <div className="text-[10px] bg-white/50 dark:bg-black/50 p-2 rounded border border-amber-200 dark:border-amber-900 overflow-auto max-h-24 break-words">
+                      {result.debug.normalizedText}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-amber-600 dark:text-amber-500 font-bold mb-1">Final Calculation</div>
+                    <div>Total Score: {result.score}/100</div>
+                    <div>Risk Category: {result.category}</div>
+                  </div>
+                </div>
+                
+                <div>
+                  <div className="text-amber-600 dark:text-amber-500 font-bold mb-2">Category Scores</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    {Object.entries(result.debug.categoryDetails || {}).map(([cat, detail]: [string, any]) => (
+                      <div key={cat} className={`p-2 rounded border ${detail.detected ? 'border-amber-300 bg-amber-100/50 dark:border-amber-700/50 dark:bg-amber-800/30' : 'border-slate-200 dark:border-slate-800/50 opacity-60'}`}>
+                        <div className="font-bold">{cat}</div>
+                        <div>Detected: {detail.detected ? 'Yes' : 'No'}</div>
+                        <div>Score: {detail.cappedScore} (Raw: {detail.rawScore})</div>
+                        {detail.matchedPatterns?.length > 0 && (
+                          <div className="mt-1 text-[10px] text-amber-700 dark:text-amber-400 font-bold">
+                            Matches: {detail.matchedPatterns.join(', ')}
+                          </div>
+                        )}
+                        {detail.failedPatterns?.length > 0 && (
+                          <div className="mt-1 text-[9px] text-slate-500 dark:text-slate-500 max-h-16 overflow-auto custom-scrollbar bg-black/5 p-1 rounded" title="Hover to see failed regex checks">
+                            <span className="font-bold">Failed Checks ({detail.failedPatterns.length}):</span>
+                            <ul className="list-disc pl-3 mt-1">
+                              {detail.failedPatterns.map((f: string, idx: number) => (
+                                <li key={idx} className="truncate" title={f}>{f}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {result.debug.combosBonuses?.length > 0 && (
+                  <div>
+                    <div className="text-amber-600 dark:text-amber-500 font-bold mb-2">Combo Bonuses</div>
+                    <ul className="list-disc pl-4 space-y-1">
+                      {result.debug.combosBonuses.map((combo: any, i: number) => (
+                        <li key={i}>
+                          <span className="font-bold">+{combo.bonus}</span>: {combo.reason} (Rule ID: {combo.id})
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

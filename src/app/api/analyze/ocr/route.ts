@@ -27,6 +27,12 @@ export async function POST(req: NextRequest) {
         ? "Ditemukan pola yang mencurigakan." 
         : "Tidak ditemukan pola penipuan yang jelas.",
       details: analysis.reasons,
+      debug: {
+        textLength: analysis.textLength,
+        normalizedText: analysis.normalizedText,
+        categoryDetails: analysis.categoryDetails,
+        combosBonuses: analysis.combosBonuses,
+      }
     });
   } catch (err) {
     console.error(err);
