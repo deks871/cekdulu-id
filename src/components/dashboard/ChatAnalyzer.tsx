@@ -40,21 +40,48 @@ export default function ChatAnalyzer() {
     setLoading(true);
     setResult(null);
 
+    console.log("[CHAT] 🟢 Memulai request investigasi chat...");
+
     try {
-      const res = await fetch("/api/analyze/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 detik timeout
+
+      let res;
+      try {
+        console.log("[CHAT] 📡 Mengirim payload ke API...");
+        res = await fetch("/api/analyze/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+          signal: controller.signal
+        });
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          throw new Error("Koneksi timeout. Server membutuhkan waktu terlalu lama untuk merespons.");
+        }
+        throw err;
+      } finally {
+        clearTimeout(timeoutId);
+      }
       
-      const data = await res.json();
+      console.log(`[CHAT] 📥 Response diterima dari frontend. (Status: ${res.status})`);
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error("Format respons tidak valid dari server. Coba lagi beberapa saat.");
+      }
       
       if (!res.ok) {
         throw new Error(data.error || "Gagal menganalisis chat");
       }
       
+      console.log("[CHAT] ✅ Analisis scam selesai dan berhasil diproses.");
+      
       setResult(data);
     } catch (err: any) {
+      console.error("[CHAT] ❌ Error:", err.message);
       setError(err.message);
       setPipelineFinished(true); // Skip animation if error
     } finally {

@@ -41,13 +41,20 @@ Return exactly one valid JSON object (no markdown, no backticks) with the follow
   "reasoning": string[] (explanations of WHY it is suspicious based on intent)
 }`;
 
-    const response = await ai.models.generateContent({
+    const fetchPromise = ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         temperature: 0.2,
       }
     });
+
+    // 10 second timeout for Gemini API
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Gemini API timeout exceeded 10s")), 10000);
+    });
+
+    const response = await Promise.race([fetchPromise, timeoutPromise]);
 
     const responseText = response.text || "";
     

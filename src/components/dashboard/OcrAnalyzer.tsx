@@ -88,6 +88,8 @@ export default function OcrAnalyzer() {
     setExtractedText("");
     setIsTextExpanded(false);
 
+    console.log("[OCR] 🟢 Memulai request investigasi OCR...");
+
     try {
       // Lazy load tesseract.js
       const Tesseract = (await import("tesseract.js")).default;
@@ -109,20 +111,46 @@ export default function OcrAnalyzer() {
       if (!combinedText || combinedText.trim().length < 5) {
         throw new Error("Tidak dapat menemukan teks yang jelas pada gambar-gambar yang diunggah.");
       }
+      
+      console.log(`[OCR] ✅ Ekstraksi OCR selesai. (${combinedText.length} karakter)`);
 
       setExtractedText(combinedText.trim());
       
-      const res = await fetch("/api/analyze/ocr", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: combinedText.substring(0, 10000) }), // limit to 10000 chars
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 detik timeout
+
+      let res;
+      try {
+        console.log("[OCR] 📡 Mengirim payload ke API...");
+        res = await fetch("/api/analyze/ocr", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: combinedText.substring(0, 10000) }), // limit to 10000 chars
+          signal: controller.signal
+        });
+      } catch (err: any) {
+        if (err.name === 'AbortError') {
+          throw new Error("Koneksi timeout. Server membutuhkan waktu terlalu lama untuk merespons.");
+        }
+        throw err;
+      } finally {
+        clearTimeout(timeoutId);
+      }
       
-      const data = await res.json();
+      console.log(`[OCR] 📥 Response diterima dari frontend. (Status: ${res.status})`);
+      
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error("Format respons tidak valid dari server. Coba lagi beberapa saat.");
+      }
       
       if (!res.ok) {
         throw new Error(data.error || "Gagal menganalisis gambar");
       }
+      
+      console.log("[OCR] ✅ Analisis scam selesai dan berhasil diproses.");
       
       // Add slight delay for UX
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -132,6 +160,7 @@ export default function OcrAnalyzer() {
         imageCount: files.length
       });
     } catch (err: any) {
+      console.error("[OCR] ❌ Error:", err.message);
       setError(err.message);
       setPipelineFinished(true); // Skip animation if error
     } finally {
