@@ -46,20 +46,28 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`mt-8 bg-white dark:bg-slate-900 border ${borderColor} rounded-xl overflow-hidden shadow-lg transition-colors duration-300`}
+      className={`mt-8 relative overflow-hidden isolate z-10 bg-white dark:bg-[#081018] border ${borderColor} rounded-2xl shadow-lg transition-colors duration-300`}
     >
       {/* Header section */}
-      <div className={`${bgColor} px-6 py-4 border-b ${borderColor} flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors duration-300`}>
+      <div 
+        className={`px-6 py-4 border-b ${borderColor} flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors duration-300 ${
+          isSafe 
+            ? 'bg-emerald-500/10 dark:bg-[linear-gradient(135deg,#0f2a20,#16402f)]' 
+            : isWarning 
+              ? 'bg-amber-500/10 dark:bg-[linear-gradient(135deg,#2a1f0a,#453315)]' 
+              : 'bg-rose-500/10 dark:bg-[linear-gradient(135deg,#2a0d18,#3d1221)]'
+        }`}
+      >
         <div className="flex items-center gap-3">
           {getIcon("w-8 h-8")}
           <div>
-            <h3 className="text-slate-900 dark:text-white font-bold text-lg uppercase tracking-wide transition-colors duration-300">Laporan Keamanan</h3>
+            <h3 className="text-neutral-900 dark:text-white font-bold text-lg uppercase tracking-wide transition-colors duration-300">Laporan Keamanan</h3>
             <div className="flex items-center gap-2 mt-1">
               <span className={`text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider ${bgColor} ${textColor} border ${borderColor} transition-colors duration-300`}>
                 {label}
               </span>
               {isMock && (
-                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-700 transition-colors duration-300">
+                <span className="text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700 transition-colors duration-300">
                   HEURISTIC MODE
                 </span>
               )}
@@ -68,9 +76,9 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
         </div>
         
         <div className="flex items-baseline gap-1 text-right">
-          <span className="text-slate-500 dark:text-slate-400 text-sm uppercase tracking-wider font-semibold mr-2 transition-colors duration-300">Risk Score</span>
+          <span className="text-neutral-500 dark:text-neutral-400 text-sm uppercase tracking-wider font-semibold mr-2 transition-colors duration-300">Risk Score</span>
           <span className={`text-4xl font-outfit font-bold ${textColor} transition-colors duration-300`}>{score}</span>
-          <span className="text-slate-500 dark:text-slate-400 font-bold transition-colors duration-300">/100</span>
+          <span className="text-neutral-500 dark:text-neutral-400 font-bold transition-colors duration-300">/100</span>
         </div>
       </div>
       
@@ -78,14 +86,14 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
       <div className="p-6">
         {urlDetails && urlDetails.length > 0 && (
           <div className="mb-6">
-            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide transition-colors duration-300">
+            <h4 className="flex items-center gap-2 text-sm font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wide transition-colors duration-300">
               <Info className="w-4 h-4" /> Indikator Risiko URL
             </h4>
             <ul className="space-y-3">
               {urlDetails.map((detail, index) => (
-                <li key={index} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
+                <li key={index} className="flex items-start gap-3 bg-neutral-50 dark:bg-[rgba(255,255,255,0.03)] p-3 rounded-lg border border-neutral-200 dark:border-[rgba(255,255,255,0.08)] transition-colors duration-300">
                   {isSafe ? <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} /> : <AlertOctagon className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />}
-                  <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
+                  <span className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
                 </li>
               ))}
             </ul>
@@ -94,14 +102,14 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
 
         {contentDetails && contentDetails.length > 0 && (
           <div className="mb-6">
-            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide transition-colors duration-300">
+            <h4 className="flex items-center gap-2 text-sm font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wide transition-colors duration-300">
               <Info className="w-4 h-4" /> Indikator Risiko Konten
             </h4>
             <ul className="space-y-3">
               {contentDetails.map((detail, index) => (
-                <li key={index} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
+                <li key={index} className="flex items-start gap-3 bg-neutral-50 dark:bg-[rgba(255,255,255,0.03)] p-3 rounded-lg border border-neutral-200 dark:border-[rgba(255,255,255,0.08)] transition-colors duration-300">
                   {isSafe ? <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} /> : <AlertOctagon className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />}
-                  <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
+                  <span className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
                 </li>
               ))}
             </ul>
@@ -110,25 +118,25 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
 
         {!urlDetails && (
           <div className="mb-6">
-            <h4 className="flex items-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wide transition-colors duration-300">
+            <h4 className="flex items-center gap-2 text-sm font-semibold text-neutral-500 dark:text-neutral-400 mb-3 uppercase tracking-wide transition-colors duration-300">
               <Info className="w-4 h-4" /> Temuan Analisis
             </h4>
             
             {Array.isArray(details) && details.length > 0 ? (
               <ul className="space-y-3">
                 {details.map((detail, index) => (
-                  <li key={index} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
+                  <li key={index} className="flex items-start gap-3 bg-neutral-50 dark:bg-[rgba(255,255,255,0.03)] p-3 rounded-lg border border-neutral-200 dark:border-[rgba(255,255,255,0.08)] transition-colors duration-300">
                     {isSafe ? (
                       <CheckCircle2 className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />
                     ) : (
                       <AlertOctagon className={`w-5 h-5 shrink-0 mt-0.5 ${iconColor}`} />
                     )}
-                    <span className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
+                    <span className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed transition-colors duration-300">{detail}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700/50 text-slate-700 dark:text-slate-300 text-sm leading-relaxed transition-colors duration-300">
+              <div className="bg-neutral-50 dark:bg-[rgba(255,255,255,0.03)] p-4 rounded-lg border border-neutral-200 dark:border-[rgba(255,255,255,0.08)] text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed transition-colors duration-300">
                 {analysis || "Tidak ada detail spesifik yang ditemukan."}
               </div>
             )}
@@ -137,11 +145,11 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
 
         {extractedFeatures && process.env.NODE_ENV === 'development' && (
           <div className="mb-6">
-            <details className="bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700/50 transition-colors duration-300">
-              <summary className="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-300 flex items-center gap-2">
+            <details className="bg-neutral-50 dark:bg-[#05080d] rounded-lg border border-neutral-200 dark:border-[rgba(16,185,129,0.2)] transition-colors duration-300">
+              <summary className="px-4 py-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors duration-300 flex items-center gap-2">
                 <Info className="w-4 h-4" /> Data Debugging (Extracted Features)
               </summary>
-              <div className="p-4 border-t border-slate-200 dark:border-slate-700/50 text-xs font-mono text-slate-600 dark:text-slate-400 overflow-x-auto whitespace-pre-wrap">
+              <div className="p-4 border-t border-neutral-200 dark:border-[rgba(16,185,129,0.2)] text-xs font-mono text-neutral-600 dark:text-neutral-400 overflow-x-auto whitespace-pre-wrap">
                 {JSON.stringify(extractedFeatures, null, 2)}
               </div>
             </details>
@@ -151,7 +159,7 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
         {/* Recommendation section */}
         <div className={`p-4 rounded-lg border ${recBgColor} transition-colors duration-300`}>
           <h4 className={`text-sm font-semibold mb-2 uppercase tracking-wide ${textColor} transition-colors duration-300`}>Rekomendasi Tindakan</h4>
-          <p className="text-slate-700 dark:text-slate-300 text-sm transition-colors duration-300">{getRecommendation()}</p>
+          <p className="text-neutral-700 dark:text-neutral-300 text-sm transition-colors duration-300">{getRecommendation()}</p>
         </div>
       </div>
     </motion.div>

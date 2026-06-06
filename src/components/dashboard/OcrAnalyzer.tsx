@@ -218,10 +218,10 @@ export default function OcrAnalyzer() {
 
       {result && (
         <div className="mt-8 space-y-4">
-          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 px-2 transition-colors duration-300">
+          <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 px-2 transition-colors duration-300">
             <div className="w-1.5 h-1.5 rounded-full bg-cyber-green"></div>
             <span>{result.imageCount} screenshot dianalisis</span>
-            <span className="text-slate-500 dark:text-slate-600">•</span>
+            <span className="text-neutral-500 dark:text-neutral-600">•</span>
             <span>{result.details?.length || 0} indikator penipuan terdeteksi</span>
           </div>
           
@@ -234,18 +234,18 @@ export default function OcrAnalyzer() {
           />
           
           {extractedText && (
-            <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-black/20 mt-4 transition-all duration-300">
+            <div className="border border-neutral-200 dark:border-[rgba(16,185,129,0.2)] rounded-xl overflow-hidden bg-white dark:bg-[#05080d] mt-4 transition-all duration-300">
               <button 
                 onClick={() => setIsTextExpanded(!isTextExpanded)}
-                className="w-full px-5 py-4 flex items-center justify-between text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                className="w-full px-5 py-4 flex items-center justify-between text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#080d14] transition-colors"
               >
                 <span className="text-sm font-semibold uppercase tracking-wider">Lihat Teks yang Diekstrak</span>
                 {isTextExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
               
               {isTextExpanded && (
-                <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-black/40 transition-colors duration-300">
-                  <pre className="text-xs text-slate-600 dark:text-slate-400 whitespace-pre-wrap font-mono overflow-auto max-h-[400px] leading-relaxed custom-scrollbar transition-colors duration-300">
+                <div className="px-5 py-4 border-t border-neutral-200 dark:border-[rgba(16,185,129,0.2)] bg-neutral-50 dark:bg-[#080d14] transition-colors duration-300">
+                  <pre className="text-xs text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap font-mono overflow-auto max-h-[400px] leading-relaxed custom-scrollbar transition-colors duration-300">
                     {extractedText}
                   </pre>
                 </div>

@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen py-12 px-4 relative">
-      <div className="absolute top-20 left-20 w-[400px] h-[400px] bg-cyber-green/5 rounded-full blur-[100px] -z-10"></div>
+      <div className="absolute top-20 left-20 w-[400px] h-[400px] bg-emerald-500/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
       
       <div className="max-w-4xl mx-auto">
         <motion.div 
