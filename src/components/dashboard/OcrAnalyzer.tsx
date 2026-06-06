@@ -250,18 +250,21 @@ export default function OcrAnalyzer() {
         {error && <p className="text-sm text-cyber-red text-center bg-rose-500/10 border border-rose-500/20 py-2 px-4 rounded-lg">{error}</p>}
       </div>
 
-      <AnimatePresence mode="wait">
+      <div className="mt-8">
         {loading || (result && !pipelineFinished) ? (
-          <motion.div key="loading-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+          <div key="loading-state">
             <LoadingPipeline 
               steps={PIPELINE_STEPS} 
               isComplete={!loading && !!result} 
-              onFinish={() => setPipelineFinished(true)} 
+              onFinish={() => {
+                console.log("[OCR] Pipeline finished, calling setPipelineFinished(true)");
+                setPipelineFinished(true);
+              }} 
             />
             <SkeletonResult />
-          </motion.div>
+          </div>
         ) : result && pipelineFinished ? (
-          <motion.div key="result-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 space-y-4">
+          <div key="result-state" className="mt-8 space-y-4">
             <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 px-2 transition-colors duration-300">
               <div className="w-1.5 h-1.5 rounded-full bg-cyber-green"></div>
               <span>{result.imageCount} screenshot dianalisis</span>
@@ -364,9 +367,9 @@ export default function OcrAnalyzer() {
                 </div>
               </div>
             )}
-          </motion.div>
+          </div>
         ) : null}
-      </AnimatePresence>
+      </div>
     </div>
   );
 }

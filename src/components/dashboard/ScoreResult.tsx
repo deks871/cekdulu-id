@@ -26,11 +26,11 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Auto scroll when results appear
-    // Adding a slight delay helps with layout shifts
+    // TEMPORARILY DISABLED FOR MOBILE DEBUGGING
+    /*
     const timer = setTimeout(() => {
       if (containerRef.current) {
-        const headerOffset = 100; // Account for fixed headers if any
+        const headerOffset = 100;
         const elementPosition = containerRef.current.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
         
@@ -41,6 +41,7 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
       }
     }, 100);
     return () => clearTimeout(timer);
+    */
   }, []);
 
   // Background for the top header section
@@ -105,12 +106,12 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
     );
   };
 
+  console.log("[ScoreResult] 🎨 Rendering ScoreResult component with score:", score);
+
   return (
-    <motion.div 
+    <div 
       ref={containerRef}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      id="score-result-wrapper"
       className={`mt-8 relative overflow-hidden isolate z-10 bg-white dark:bg-[#081018] border ${borderColor} rounded-2xl shadow-xl transition-colors duration-300`}
     >
       {/* Header section */}
@@ -144,15 +145,14 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
           <div className="flex flex-col items-end w-full sm:w-auto mt-2 sm:mt-0">
             <div className="flex items-baseline gap-1 text-right">
               <span className="text-neutral-500 dark:text-neutral-400 text-sm uppercase tracking-wider font-semibold mr-2 transition-colors duration-300">Risk Score</span>
-              <AnimatedScore score={score} className={`text-4xl font-outfit font-bold ${textColor} transition-colors duration-300`} />
+              {/* Temporarily disabled AnimatedScore */}
+              <span className={`text-4xl font-outfit font-bold ${textColor} transition-colors duration-300`}>{score}</span>
               <span className="text-neutral-500 dark:text-neutral-400 font-bold transition-colors duration-300">/100</span>
             </div>
             {/* Progress Bar under score */}
             <div className={`w-full h-1.5 mt-2 rounded-full overflow-hidden ${progressTrackColor}`}>
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${score}%` }}
-                transition={{ duration: 1.2, ease: "easeOut" }}
+              <div 
+                style={{ width: `${score}%` }}
                 className={`h-full ${progressBgColor}`}
               />
             </div>
@@ -258,6 +258,6 @@ export default function ScoreResult({ score, category, analysis, details, urlDet
           <p className="text-neutral-700 dark:text-neutral-300 text-sm transition-colors duration-300">{getRecommendation()}</p>
         </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 }
