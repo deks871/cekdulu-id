@@ -389,7 +389,7 @@ export default function Home() {
       <section className="py-32 text-center relative px-4 overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-cyber-green/10 rounded-[100%] blur-[120px] -z-10"></div>
         <h2 className="text-4xl font-bold text-slate-900 dark:text-white font-outfit mb-6">Pastikan Kebenarannya Sebelum Mengambil Keputusan.</h2>
-        <p className="text-xl text-slate-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">CekDulu sekarang sebelum Anda menjadi korban penipuan digital yang berikutnya.</p>
+        <p className="text-xl text-slate-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto">CekDulu sekarang, sebelum Anda menjadi korban penipuan digital yang berikutnya.</p>
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-cyber-green text-cyber-dark font-bold text-lg hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] transition-all"

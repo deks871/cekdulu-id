@@ -13,29 +13,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const analysis = analyzeScam(text);
-
-    console.log("OCR TEXT:", text);
-    console.log("OCR ANALYSIS:", analysis);
+    const analysis = await analyzeScam(text);
 
     const responseData: any = {
       success: true,
       text,
       score: analysis.score,
       category: analysis.label,
-      analysis: analysis.reasons.length > 0 
+      confidence: analysis.confidence,
+      analysis: analysis.aiReasoning?.join(" ") || (analysis.reasons.length > 0 
         ? "Ditemukan pola yang mencurigakan." 
-        : "Tidak ditemukan pola penipuan yang jelas.",
+        : "Tidak ditemukan pola penipuan yang jelas."),
       details: analysis.reasons,
     };
 
     if (process.env.NODE_ENV === "development") {
-      responseData.debug = {
-        textLength: analysis.textLength,
-        normalizedText: analysis.normalizedText,
-        categoryDetails: analysis.categoryDetails,
-        combosBonuses: analysis.combosBonuses,
-      };
+      responseData.debug = analysis.debug;
     }
 
     return NextResponse.json(responseData);

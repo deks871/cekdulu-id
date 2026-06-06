@@ -2,17 +2,28 @@
 
 import { useState, useRef } from "react";
 import { Upload, Loader2, FileImage, X, ChevronDown, ChevronUp } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import ScoreResult from "./ScoreResult";
+import LoadingPipeline from "./LoadingPipeline";
+import SkeletonResult from "./SkeletonResult";
+
+const PIPELINE_STEPS = [
+  "Memproses gambar...",
+  "Mengekstrak teks dari screenshot...",
+  "Menganalisis pola penipuan...",
+  "Menghitung tingkat risiko...",
+  "Menyiapkan laporan investigasi..."
+];
 
 export default function OcrAnalyzer() {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingStep, setLoadingStep] = useState("");
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
   const [extractedText, setExtractedText] = useState("");
   const [isTextExpanded, setIsTextExpanded] = useState(false);
+  const [pipelineFinished, setPipelineFinished] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -47,6 +58,7 @@ export default function OcrAnalyzer() {
     if (hasError) return;
 
     setError("");
+    setPipelineFinished(false);
     setResult(null);
     setExtractedText("");
     setFiles(prev => [...prev, ...validFiles]);
@@ -61,6 +73,7 @@ export default function OcrAnalyzer() {
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
     setPreviews(prev => prev.filter((_, i) => i !== index));
+    setPipelineFinished(false);
     setResult(null);
     setExtractedText("");
   };
@@ -70,27 +83,21 @@ export default function OcrAnalyzer() {
     
     setLoading(true);
     setError("");
+    setPipelineFinished(false);
     setResult(null);
     setExtractedText("");
     setIsTextExpanded(false);
 
     try {
-      setLoadingStep("Menyiapkan gambar untuk analisis...");
       // Lazy load tesseract.js
       const Tesseract = (await import("tesseract.js")).default;
       
       let combinedText = "";
 
       for (let i = 0; i < previews.length; i++) {
-        setLoadingStep(`Mengekstrak teks dari gambar ${i + 1} dari ${previews.length}...`);
-        
         // Perform OCR sequentially
         const ocrResult = await Tesseract.recognize(previews[i], "ind+eng", {
-          logger: m => {
-            if (m.status === "recognizing text") {
-              setLoadingStep(`Memproses gambar ${i + 1} dari ${previews.length}... ${Math.round(m.progress * 100)}%`);
-            }
-          }
+          logger: m => {} // Progress is now handled by generic LoadingPipeline
         });
 
         const text = ocrResult.data.text;
@@ -104,7 +111,6 @@ export default function OcrAnalyzer() {
       }
 
       setExtractedText(combinedText.trim());
-      setLoadingStep("Mengidentifikasi indikator penipuan...");
       
       const res = await fetch("/api/analyze/ocr", {
         method: "POST",
@@ -118,7 +124,6 @@ export default function OcrAnalyzer() {
         throw new Error(data.error || "Gagal menganalisis gambar");
       }
       
-      setLoadingStep("Menyusun laporan akhir...");
       // Add slight delay for UX
       await new Promise(resolve => setTimeout(resolve, 500));
       
@@ -128,9 +133,9 @@ export default function OcrAnalyzer() {
       });
     } catch (err: any) {
       setError(err.message);
+      setPipelineFinished(true); // Skip animation if error
     } finally {
       setLoading(false);
-      setLoadingStep("");
     }
   };
 
@@ -148,8 +153,8 @@ export default function OcrAnalyzer() {
             className="border-2 border-dashed border-slate-300 dark:border-glass-border hover:border-cyber-green/50 rounded-xl p-12 text-center cursor-pointer transition-colors bg-slate-50 dark:bg-black/20 group duration-300"
           >
             <Upload className="w-12 h-12 text-slate-500 dark:text-gray-500 group-hover:text-cyber-green mx-auto mb-4 transition-colors" />
-            <p className="text-slate-900 dark:text-white font-medium mb-1 transition-colors duration-300">Klik untuk mengunggah screenshot</p>
-            <p className="text-sm text-slate-500 dark:text-gray-500 transition-colors duration-300">Pilih 1 hingga 5 gambar (Maks 5MB/gambar)</p>
+            <p className="text-slate-900 dark:text-white font-medium mb-1 transition-colors duration-300">Mulai Investigasi OCR</p>
+            <p className="text-sm text-slate-500 dark:text-gray-500 transition-colors duration-300">Unggah screenshot, foto struk transfer, atau gambar bukti percakapan. (Maks 5 gambar, 5MB/gambar)</p>
           </div>
         ) : (
           <div className="bg-white dark:bg-black/30 border border-slate-200 dark:border-glass-border rounded-xl p-6 flex flex-col items-center transition-colors duration-300">
@@ -183,7 +188,7 @@ export default function OcrAnalyzer() {
             
             <div className="flex gap-4">
               <button 
-                onClick={() => { setFiles([]); setPreviews([]); setResult(null); setExtractedText(""); }}
+                onClick={() => { setFiles([]); setPreviews([]); setPipelineFinished(false); setResult(null); setExtractedText(""); }}
                 className="px-4 py-2 text-sm text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                 disabled={loading}
               >
@@ -194,8 +199,8 @@ export default function OcrAnalyzer() {
                 disabled={loading}
                 className="px-6 py-2 bg-cyber-green text-cyber-dark font-bold hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] rounded-lg transition-all duration-300 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-[0_0_20px_rgba(0,230,92,0.2)] group"
               >
-                {loading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin text-cyber-dark" /> <span className="text-cyber-dark text-xs">{loadingStep}</span></>
+                {loading || (result && !pipelineFinished) ? (
+                  <><Loader2 className="w-4 h-4 animate-spin text-cyber-dark" /> <span className="text-cyber-dark text-xs font-bold">Menganalisis...</span></>
                 ) : (
                   <><FileImage className="w-4 h-4 text-cyber-dark transition-colors" /> <span className="text-cyber-dark transition-colors">Mulai Investigasi</span></>
                 )}
@@ -216,112 +221,123 @@ export default function OcrAnalyzer() {
         {error && <p className="text-sm text-cyber-red text-center bg-rose-500/10 border border-rose-500/20 py-2 px-4 rounded-lg">{error}</p>}
       </div>
 
-      {result && (
-        <div className="mt-8 space-y-4">
-          <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 px-2 transition-colors duration-300">
-            <div className="w-1.5 h-1.5 rounded-full bg-cyber-green"></div>
-            <span>{result.imageCount} screenshot dianalisis</span>
-            <span className="text-neutral-500 dark:text-neutral-600">•</span>
-            <span>{result.details?.length || 0} indikator penipuan terdeteksi</span>
-          </div>
-          
-          <ScoreResult 
-            score={result.score} 
-            category={result.category}
-            analysis={result.analysis} 
-            details={result.details}
-            isMock={result.isMock}
-          />
-          
-          {extractedText && (
-            <div className="border border-neutral-200 dark:border-[rgba(16,185,129,0.2)] rounded-xl overflow-hidden bg-white dark:bg-[#05080d] mt-4 transition-all duration-300">
-              <button 
-                onClick={() => setIsTextExpanded(!isTextExpanded)}
-                className="w-full px-5 py-4 flex items-center justify-between text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#080d14] transition-colors"
-              >
-                <span className="text-sm font-semibold uppercase tracking-wider">Lihat Teks yang Diekstrak</span>
-                {isTextExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              
-              {isTextExpanded && (
-                <div className="px-5 py-4 border-t border-neutral-200 dark:border-[rgba(16,185,129,0.2)] bg-neutral-50 dark:bg-[#080d14] transition-colors duration-300">
-                  <pre className="text-xs text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap font-mono overflow-auto max-h-[400px] leading-relaxed custom-scrollbar transition-colors duration-300">
-                    {extractedText}
-                  </pre>
-                </div>
-              )}
+      <AnimatePresence mode="wait">
+        {loading || (result && !pipelineFinished) ? (
+          <motion.div key="loading-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+            <LoadingPipeline 
+              steps={PIPELINE_STEPS} 
+              isComplete={!loading && !!result} 
+              onFinish={() => setPipelineFinished(true)} 
+            />
+            <SkeletonResult />
+          </motion.div>
+        ) : result && pipelineFinished ? (
+          <motion.div key="result-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 space-y-4">
+            <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400 px-2 transition-colors duration-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-cyber-green"></div>
+              <span>{result.imageCount} screenshot dianalisis</span>
+              <span className="text-neutral-500 dark:text-neutral-600">•</span>
+              <span>{result.details?.length || 0} indikator penipuan terdeteksi</span>
             </div>
-          )}
-
-          {/* DEBUG PANEL */}
-          {process.env.NODE_ENV === "development" && result.debug && (
-            <div className="border border-amber-200 dark:border-amber-900/50 rounded-xl overflow-hidden bg-amber-50 dark:bg-amber-900/10 mt-4 transition-all duration-300">
-              <div className="px-5 py-3 border-b border-amber-200 dark:border-amber-900/50 bg-amber-100/50 dark:bg-amber-900/20 font-bold text-amber-800 dark:text-amber-500 text-sm">
-                🛠 Debug Panel: OCR Scoring Pipeline
-              </div>
-              <div className="p-5 space-y-4 text-xs font-mono text-slate-700 dark:text-slate-300">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-amber-600 dark:text-amber-500 font-bold mb-1">Extracted Stats</div>
-                    <div>Characters: {result.debug.textLength}</div>
-                    <div>Raw Text (head): {extractedText.substring(0, 100)}...</div>
-                    <div className="mt-2 text-amber-600 dark:text-amber-500 font-bold mb-1">Normalized Text (passed to regex)</div>
-                    <div className="text-[10px] bg-white/50 dark:bg-black/50 p-2 rounded border border-amber-200 dark:border-amber-900 overflow-auto max-h-24 break-words">
-                      {result.debug.normalizedText}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-amber-600 dark:text-amber-500 font-bold mb-1">Final Calculation</div>
-                    <div>Total Score: {result.score}/100</div>
-                    <div>Risk Category: {result.category}</div>
-                  </div>
-                </div>
+            
+            <ScoreResult 
+              score={result.score} 
+              category={result.category}
+              analysis={result.analysis} 
+              details={result.details}
+              isMock={result.isMock}
+            />
+            
+            {extractedText && (
+              <div className="border border-neutral-200 dark:border-[rgba(16,185,129,0.2)] rounded-xl overflow-hidden bg-white dark:bg-[#05080d] mt-4 transition-all duration-300">
+                <button 
+                  onClick={() => setIsTextExpanded(!isTextExpanded)}
+                  className="w-full px-5 py-4 flex items-center justify-between text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-[#080d14] transition-colors"
+                >
+                  <span className="text-sm font-semibold uppercase tracking-wider">Lihat Teks yang Diekstrak</span>
+                  {isTextExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
                 
-                <div>
-                  <div className="text-amber-600 dark:text-amber-500 font-bold mb-2">Category Scores</div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {Object.entries(result.debug.categoryDetails || {}).map(([cat, detail]: [string, any]) => (
-                      <div key={cat} className={`p-2 rounded border ${detail.detected ? 'border-amber-300 bg-amber-100/50 dark:border-amber-700/50 dark:bg-amber-800/30' : 'border-slate-200 dark:border-slate-800/50 opacity-60'}`}>
-                        <div className="font-bold">{cat}</div>
-                        <div>Detected: {detail.detected ? 'Yes' : 'No'}</div>
-                        <div>Score: {detail.cappedScore} (Raw: {detail.rawScore})</div>
-                        {detail.matchedPatterns?.length > 0 && (
-                          <div className="mt-1 text-[10px] text-amber-700 dark:text-amber-400 font-bold">
-                            Matches: {detail.matchedPatterns.join(', ')}
-                          </div>
-                        )}
-                        {detail.failedPatterns?.length > 0 && (
-                          <div className="mt-1 text-[9px] text-slate-500 dark:text-slate-500 max-h-16 overflow-auto custom-scrollbar bg-black/5 p-1 rounded" title="Hover to see failed regex checks">
-                            <span className="font-bold">Failed Checks ({detail.failedPatterns.length}):</span>
-                            <ul className="list-disc pl-3 mt-1">
-                              {detail.failedPatterns.map((f: string, idx: number) => (
-                                <li key={idx} className="truncate" title={f}>{f}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {result.debug.combosBonuses?.length > 0 && (
-                  <div>
-                    <div className="text-amber-600 dark:text-amber-500 font-bold mb-2">Combo Bonuses</div>
-                    <ul className="list-disc pl-4 space-y-1">
-                      {result.debug.combosBonuses.map((combo: any, i: number) => (
-                        <li key={i}>
-                          <span className="font-bold">+{combo.bonus}</span>: {combo.reason} (Rule ID: {combo.id})
-                        </li>
-                      ))}
-                    </ul>
+                {isTextExpanded && (
+                  <div className="px-5 py-4 border-t border-neutral-200 dark:border-[rgba(16,185,129,0.2)] bg-neutral-50 dark:bg-[#080d14] transition-colors duration-300">
+                    <pre className="text-xs text-neutral-600 dark:text-neutral-400 whitespace-pre-wrap font-mono overflow-auto max-h-[400px] leading-relaxed custom-scrollbar transition-colors duration-300">
+                      {extractedText}
+                    </pre>
                   </div>
                 )}
               </div>
-            </div>
-          )}
-        </div>
-      )}
+            )}
+
+            {/* DEBUG PANEL */}
+            {process.env.NODE_ENV === "development" && result.debug && (
+              <div className="border border-amber-200 dark:border-amber-900/50 rounded-xl overflow-hidden bg-amber-50 dark:bg-amber-900/10 mt-4 transition-all duration-300">
+                <div className="px-5 py-3 border-b border-amber-200 dark:border-amber-900/50 bg-amber-100/50 dark:bg-amber-900/20 font-bold text-amber-800 dark:text-amber-500 text-sm">
+                  Debug Panel: OCR Scoring Pipeline
+                </div>
+                <div className="p-5 space-y-4 text-xs font-mono text-slate-700 dark:text-slate-300">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <div className="text-amber-600 dark:text-amber-500 font-bold mb-1">Extracted Stats</div>
+                      <div>Characters: {result.debug.textLength}</div>
+                      <div>Raw Text (head): {extractedText.substring(0, 100)}...</div>
+                      <div className="mt-2 text-amber-600 dark:text-amber-500 font-bold mb-1">Normalized Text (passed to regex)</div>
+                      <div className="text-[10px] bg-white/50 dark:bg-black/50 p-2 rounded border border-amber-200 dark:border-amber-900 overflow-auto max-h-24 break-words">
+                        {result.debug.normalizedText}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-amber-600 dark:text-amber-500 font-bold mb-1">Final Calculation</div>
+                      <div>Total Score: {result.score}/100</div>
+                      <div>Risk Category: {result.category}</div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-amber-600 dark:text-amber-500 font-bold mb-2">Category Scores</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {Object.entries(result.debug.categoryDetails || {}).map(([cat, detail]: [string, any]) => (
+                        <div key={cat} className={`p-2 rounded border ${detail.detected ? 'border-amber-300 bg-amber-100/50 dark:border-amber-700/50 dark:bg-amber-800/30' : 'border-slate-200 dark:border-slate-800/50 opacity-60'}`}>
+                          <div className="font-bold">{cat}</div>
+                          <div>Detected: {detail.detected ? 'Yes' : 'No'}</div>
+                          <div>Score: {detail.cappedScore} (Raw: {detail.rawScore})</div>
+                          {detail.matchedPatterns?.length > 0 && (
+                            <div className="mt-1 text-[10px] text-amber-700 dark:text-amber-400 font-bold">
+                              Matches: {detail.matchedPatterns.join(', ')}
+                            </div>
+                          )}
+                          {detail.failedPatterns?.length > 0 && (
+                            <div className="mt-1 text-[9px] text-slate-500 dark:text-slate-500 max-h-16 overflow-auto custom-scrollbar bg-black/5 p-1 rounded" title="Hover to see failed regex checks">
+                              <span className="font-bold">Failed Checks ({detail.failedPatterns.length}):</span>
+                              <ul className="list-disc pl-3 mt-1">
+                                {detail.failedPatterns.map((f: string, idx: number) => (
+                                  <li key={idx} className="truncate" title={f}>{f}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {result.debug.combosBonuses?.length > 0 && (
+                    <div>
+                      <div className="text-amber-600 dark:text-amber-500 font-bold mb-2">Combo Bonuses</div>
+                      <ul className="list-disc pl-4 space-y-1">
+                        {result.debug.combosBonuses.map((combo: any, i: number) => (
+                          <li key={i}>
+                            <span className="font-bold">+{combo.bonus}</span>: {combo.reason} (Rule ID: {combo.id})
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

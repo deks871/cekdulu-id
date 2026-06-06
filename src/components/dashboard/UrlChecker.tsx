@@ -1,6 +1,18 @@
 import { useState } from "react";
-import { Link, Loader2, Lock } from "lucide-react";
+import { Link, Loader2, Lock, ShieldAlert } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import ScoreResult from "./ScoreResult";
+import EmptyState from "./EmptyState";
+import LoadingPipeline from "./LoadingPipeline";
+import SkeletonResult from "./SkeletonResult";
+
+const PIPELINE_STEPS = [
+  "Memvalidasi alamat URL...",
+  "Menganalisis struktur domain...",
+  "Memeriksa indikator keamanan...",
+  "Menghitung tingkat risiko...",
+  "Menyiapkan laporan investigasi..."
+];
 
 export default function UrlChecker() {
   const MAINTENANCE_MODE = true;
@@ -17,6 +29,7 @@ export default function UrlChecker() {
     extractedFeatures?: Record<string, any>;
   } | null>(null);
   const [error, setError] = useState("");
+  const [pipelineFinished, setPipelineFinished] = useState(false);
 
   const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +38,7 @@ export default function UrlChecker() {
       return;
     }
     setError("");
+    setPipelineFinished(false);
     setLoading(true);
     setResult(null);
     try {
@@ -40,6 +54,7 @@ export default function UrlChecker() {
       setResult(data);
     } catch (err: any) {
       setError(err.message);
+      setPipelineFinished(true);
     } finally {
       setLoading(false);
     }
@@ -76,9 +91,9 @@ export default function UrlChecker() {
             disabled={loading || MAINTENANCE_MODE}
             className="w-full sm:w-auto px-6 py-3 bg-cyber-green text-cyber-dark font-bold hover:bg-[#00ff66] shadow-[0_0_20px_rgba(0,230,92,0.2)] hover:shadow-[0_0_35px_rgba(0,230,92,0.5)] rounded-xl transition-all duration-300 flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-[0_0_20px_rgba(0,230,92,0.2)] group"
           >
-            {loading ? (
+            {loading || (result && !pipelineFinished) ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin text-cyber-dark" /> <span className="text-cyber-dark transition-colors duration-300">Menganalisis URL...</span>
+                <Loader2 className="w-5 h-5 animate-spin text-cyber-dark" /> <span className="text-cyber-dark transition-colors duration-300">Menganalisis...</span>
               </>
             ) : (
               <>
@@ -87,17 +102,39 @@ export default function UrlChecker() {
             )}
           </button>
         </form>
-        {result && (
-          <ScoreResult
-            score={result.score}
-            category={result.label}
-            details={result.details}
-            urlDetails={result.urlDetails}
-            contentDetails={result.contentDetails}
-            isMock={result.isMock}
-            extractedFeatures={result.extractedFeatures}
-          />
-        )}
+
+        <AnimatePresence mode="wait">
+          {loading || (result && !pipelineFinished) ? (
+            <motion.div key="loading-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}>
+              <LoadingPipeline 
+                steps={PIPELINE_STEPS} 
+                isComplete={!loading && !!result} 
+                onFinish={() => setPipelineFinished(true)} 
+              />
+              <SkeletonResult />
+            </motion.div>
+          ) : result && pipelineFinished ? (
+            <motion.div key="result-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <ScoreResult
+                score={result.score}
+                category={result.label}
+                details={result.details}
+                urlDetails={result.urlDetails}
+                contentDetails={result.contentDetails}
+                isMock={result.isMock}
+                extractedFeatures={result.extractedFeatures}
+              />
+            </motion.div>
+          ) : !loading && !result && !error ? (
+            <motion.div key="empty-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <EmptyState 
+                icon={<Link className="w-8 h-8" />} 
+                title="Mulai Investigasi URL" 
+                description="Masukkan alamat website atau tautan mencurigakan untuk mendeteksi potensi phishing dan typosquatting." 
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
 
       {MAINTENANCE_MODE && (
